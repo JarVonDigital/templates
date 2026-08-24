@@ -1,0 +1,101 @@
+.primary-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 50;
+  display: flex;
+  width: 56px;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  background: var(--summit-navy);
+  color: #fff;
+  transition: width 240ms ease, box-shadow 240ms ease;
+
+  &.expanded {
+    width: 260px;
+    box-shadow: 8px 0 18px rgb(0 0 0 / 24%);
+  }
+}
+
+.brand-toggle {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 66px;
+  flex: 0 0 66px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.compact-logo,
+.full-logo {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  object-fit: contain;
+  object-position: left center;
+  transform: translateY(-50%);
+  transition: opacity 180ms ease;
+}
+
+.compact-logo { opacity: 1; }
+.full-logo { width: 160px; height: auto; opacity: 0; }
+
+.expanded {
+  .compact-logo { opacity: 0; }
+  .full-logo { opacity: 1; }
+}
+
+.divider {
+  width: 40px;
+  margin-left: 8px;
+  border-top: 1px solid rgb(255 255 255 / 60%);
+  transition: width 240ms ease;
+}
+
+.expanded .divider { width: 224px; }
+nav { display: flex; width: 100%; flex: 1; flex-direction: column; padding-top: 17px; }
+.rail-link {
+  display: grid;
+  width: 260px;
+  min-height: 48px;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+
+  svg { width: 24px; height: 24px; margin: auto; stroke-width: 1.8; }
+
+  .nav-label {
+    overflow: hidden;
+    padding-left: 10px;
+    font-size: 15px;
+    opacity: 0;
+    white-space: nowrap;
+    transform: translateX(-6px);
+    transition: opacity 150ms ease, transform 200ms ease;
+  }
+
+  &:hover, &.active { background: rgb(255 255 255 / 10%); }
+}
+
+.expanded .nav-label { opacity: 1; transform: translateX(0); transition-delay: 70ms; }
+@media (max-width: 700px) {
+  .primary-rail { inset: auto 0 0; width: 100%; height: 58px; flex-direction: row; }
+  .primary-rail.expanded { width: 100%; box-shadow: none; }
+  .brand-toggle, .divider { display: none; }
+  nav { flex-direction: row; padding: 0; }
+  .rail-link {
+    display: flex;
+    width: auto;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+
+    .nav-label { padding: 0; font-size: 10px; opacity: 1; transform: none; }
+  }
+}

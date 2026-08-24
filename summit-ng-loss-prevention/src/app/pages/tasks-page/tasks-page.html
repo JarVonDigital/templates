@@ -1,0 +1,21 @@
+<div class="content">
+      <app-policy-summary />
+      <section id="task-details" class="task-details" aria-labelledby="task-details-title">
+        <h2 id="task-details-title">Task Details</h2>
+        <div class="details-grid">
+          <app-ui-field id="task-status" label="Task Status" value="Pending" [required]="true" kind="select" [options]="['Pending', 'Complete']" />
+          <app-ui-field id="task-type" label="Task Detail/Type?" value="??" kind="select" [options]="['??', 'Standard']" />
+          <app-ui-field id="frequency" label="Frequency" value="Annual" [required]="true" kind="select" [options]="['Annual', 'Quarterly']" />
+          <app-ui-field id="due-date" label="Due Date" value="08/14/2026" [required]="true" kind="date" />
+          <app-ui-field id="completion-date" label="Planned Completion Date" value="08/12/2026" kind="date" />
+          <app-ui-field id="consultant" label="Consultant Assigned" value="Robert Hollins" [required]="true" kind="select" [options]="['Robert Hollins', 'Sonya Burgess']" />
+          <app-ui-field id="recommendations" label="Recommendations Captured" value="Yes" [required]="true" kind="select" [options]="['Yes', 'No']" />
+        </div>
+      </section>
+      <section class="visits-grid" aria-label="Visit details">
+        @for (visit of visits(); track visit.id; let first = $first) {
+          <app-visit-card [visit]="visit" [canRemove]="!first" [canAdd]="!first" (addVisit)="addVisit()" (removeVisit)="removeVisit($event)" (locationChange)="updateVisitLocation(visit.id, $event)" />
+        }
+      </section>
+</div>
+<footer class="action-bar"><button pButton type="button" class="cancel-button">Cancel</button><button pButton type="button" class="save-button"><svg lucideSave /><span>Save</span></button></footer>

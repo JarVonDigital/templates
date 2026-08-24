@@ -1,0 +1,23 @@
+<header class="table-header">
+  <h1>{{ title() }}</h1>
+  <label class="search-field"><span class="sr-only">{{ searchLabel() }}</span><svg lucideSearch aria-hidden="true" /><input type="search" [placeholder]="searchPlaceholder()" (input)="searchChanged.emit($any($event.target).value)" /></label>
+  <div class="table-header-actions">
+    <div class="menu-anchor">
+      <button type="button" class="control-button" (click)="columnsOpen.set(!columnsOpen())" [attr.aria-expanded]="columnsOpen()" aria-controls="table-columns-menu"><svg lucideColumns3 aria-hidden="true" />Columns<svg lucideChevronDown class="chevron" aria-hidden="true" /></button>
+      @if (columnsOpen()) {
+        <div id="table-columns-menu" class="columns-menu floating-panel">
+          <div class="panel-title"><strong>Show columns</strong><button type="button" class="icon-button" (click)="columnsOpen.set(false)" aria-label="Close column selector"><svg lucideX /></button></div>
+          @for (column of columns(); track column.key) {
+            <div class="column-option" [class.dragging]="draggedColumn() === column.key" (pointermove)="moveDraggedColumn($event, column.key)" (pointerup)="draggedColumn.set(null)" (pointercancel)="draggedColumn.set(null)">
+              <button type="button" class="drag-grip" (pointerdown)="startColumnDrag($event, column.key)" (keydown.arrowup)="moveColumn(column.key, -1); $event.preventDefault()" (keydown.arrowdown)="moveColumn(column.key, 1); $event.preventDefault()" [attr.aria-label]="'Drag ' + column.label + ' to reorder. Use up and down arrow keys.'"><svg lucideGripVertical aria-hidden="true" /></button>
+              <label><input type="checkbox" [checked]="isColumnVisible(column.key)" (change)="toggleColumn(column.key)" /><span class="custom-check"><svg lucideCheck /></span>{{ column.label }}</label>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    <button type="button" class="control-button" (click)="filtersOpened.emit()"><svg lucideFilter aria-hidden="true" />Filters @if (filterCount()) { <span class="filter-count">{{ filterCount() }}</span> }</button>
+    <ng-content select="[table-header-actions]" />
+  </div>
+  <span class="results-count"><strong>{{ resultCount() }}</strong><span>{{ resultLabel() }}</span></span>
+</header>

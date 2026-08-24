@@ -1,0 +1,2 @@
+<app-sidebar (expandedChange)="sidebarExpanded.set($event)" />
+<main class="app-content" [class.sidebar-expanded]="sidebarExpanded()"><router-outlet /></main>

@@ -1,0 +1,91 @@
+<main class="tasks-page">
+  <app-table-header title="Tasks" searchLabel="Search tasks" searchPlaceholder="Search client, task, policy, or consultant" [resultCount]="filteredTasks().length" resultLabel="tasks" [filterCount]="activeFilterCount()" [columns]="columns()" [(visibleColumns)]="visibleColumns" [(columnsOpen)]="columnsOpen" (searchChanged)="search($event)" (filtersOpened)="openFilters(); columnsOpen.set(false)" />
+
+  <section class="task-card table-card-shell" aria-labelledby="task-table-title">
+    <h2 id="task-table-title" class="sr-only">Task list</h2>
+
+    @if (selected().size) {
+      <app-bulk-actions [selectedCount]="selected().size" [actions]="bulkActions" (actionSelected)="handleBulkAction($event)" (cleared)="clearSelection()" />
+    }
+
+    <app-table-shell [fillHeight]="true">
+      <table>
+        <thead><tr>
+          <th class="select-column"><label><span class="sr-only">Select all tasks on this page</span><input type="checkbox" [checked]="allPageSelected()" [indeterminate]="selected().size > 0 && !allPageSelected()" (change)="togglePage($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck /></span></label></th>
+          @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <th [class.active-sort]="sortKey() === column.key"><button type="button" class="sort-button" (click)="sort(column.key)" [attr.aria-label]="'Sort by ' + column.label" [attr.aria-pressed]="sortKey() === column.key">{{ column.label }}<svg lucideArrowDownAZ [class.descending]="sortKey() === column.key && sortDirection() === 'desc'" aria-hidden="true" /></button></th> } }
+          <th class="actions-column"><span class="sr-only">Actions</span></th>
+        </tr></thead>
+        <tbody>
+          @for (task of pageTasks(); track task.id) {
+            <tr [class.selected-row]="selected().has(task.id)" [class.warning-row]="task.status === 'Pending'">
+              <td class="select-column"><label><span class="sr-only">Select task {{ task.id }}</span><input type="checkbox" [checked]="selected().has(task.id)" (change)="toggleTask(task.id, $any($event.target).checked)" /><span class="custom-check"><svg lucideCheck /></span></label></td>
+              @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [class]="column.cellClass?.(task) ?? ''"><span class="cell-content">{{ column.value(task) }}</span></td> } }
+              <td class="actions-column"><button type="button" class="row-actions" (click)="rowMenu.set(rowMenu() === task.id ? null : task.id)" [attr.aria-expanded]="rowMenu() === task.id" [attr.aria-label]="'Actions for task ' + task.id"><svg lucideMoreVertical /></button>@if (rowMenu() === task.id) { <div class="row-menu floating-panel"><a [routerLink]="['/tasks', task.id]">Open task</a><button type="button" (click)="toggleTask(task.id, true); openBulkAction('reassign')"><svg lucideArrowLeftRight aria-hidden="true" />Reassign</button><button type="button" (click)="toggleTask(task.id, true); openBulkAction('status')"><svg lucidePencil aria-hidden="true" />Change status</button></div> }</td>
+            </tr>
+          } @empty { <tr><td class="empty-state" [attr.colspan]="visibleColumns().size + 2"><strong>No tasks found</strong><span>Try changing your search or filters.</span></td></tr> }
+        </tbody>
+      </table>
+    </app-table-shell>
+    <footer class="pagination"><span>Showing {{ pageStart() }}–{{ pageEnd() }} of {{ filteredTasks().length }}</span><div><button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 1" aria-label="Previous page"><svg lucideChevronLeft /></button>@for (pageNumber of pageNumbers(); track pageNumber) { <button type="button" class="page-number" [class.active]="page() === pageNumber" (click)="goToPage(pageNumber)" [attr.aria-label]="'Page ' + pageNumber" [attr.aria-current]="page() === pageNumber ? 'page' : null">{{ pageNumber }}</button> }<button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()" aria-label="Next page"><svg lucideChevronRight /></button></div></footer>
+  </section>
+</main>
+
+@if (filtersOpen()) {
+  <div class="scrim" (click)="filtersOpen.set(false)"></div>
+  <aside class="filter-drawer" role="dialog" aria-modal="true" aria-labelledby="filter-title">
+    <div class="drawer-header"><div><p class="eyebrow">Refine results</p><h2 id="filter-title">Filter tasks</h2></div><button type="button" class="icon-button" (click)="filtersOpen.set(false)" aria-label="Close filters"><svg lucideX /></button></div>
+    <div class="filter-content">
+      <fieldset class="saved-filters">
+        <legend>Saved filters</legend>
+        <select aria-label="Load a saved filter" [value]="selectedSavedFilter()" (change)="loadSavedFilter($any($event.target).value)"><option value="">Choose a saved filter</option>@for (filter of savedFilters(); track filter.name) { <option [value]="filter.name">{{ filter.name }}</option> }</select>
+        <div class="saved-filter-actions"><input type="text" placeholder="Name this filter" aria-label="Saved filter name" [value]="savedFilterName()" (input)="savedFilterName.set($any($event.target).value)" /><button type="button" class="secondary-button" [disabled]="!savedFilterName().trim()" (click)="saveFilter()">Save</button><button type="button" class="icon-button" [disabled]="!selectedSavedFilter()" (click)="deleteSelectedSavedFilter()" aria-label="Delete selected saved filter"><svg lucideX /></button></div>
+      </fieldset>
+      <fieldset>
+        <legend>Location</legend>
+        <div class="filter-grid">
+          <label><span class="field-label">State</span><select [value]="filterDraftState()" (change)="changeDraftState($any($event.target).value)"><option value="">Any state</option>@for (state of states; track state) { <option [value]="state">{{ state }}</option> }</select></label>
+          <label><span class="field-label">County <span class="optional">(optional)</span></span><select [disabled]="!filterDraftState()" [value]="filterDraftCounty()" (change)="filterDraftCounty.set($any($event.target).value)"><option value="">Any county</option>@for (county of countyOptions(); track county) { <option [value]="county">{{ county }}</option> }</select></label>
+          <label><span class="field-label">City</span><select [disabled]="!filterDraftState()" [value]="filterDraftCity()" (change)="filterDraftCity.set($any($event.target).value)"><option value="">Any city</option>@for (city of cityOptions(); track city) { <option [value]="city">{{ city }}</option> }</select></label>
+          <label><span class="field-label">Zip <span class="optional">(exact match)</span></span><input type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 33801" [value]="filterDraftZip()" (input)="filterDraftZip.set($any($event.target).value)" /></label>
+        </div>
+        <p class="filter-hint">County and city require a state. Zip can be entered independently.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Due date</legend>
+        <div class="segmented-control" aria-label="Due date comparison">
+          <button type="button" [class.active]="filterDraftDueMode() === 'before'" (click)="filterDraftDueMode.set('before')">Before</button>
+          <button type="button" [class.active]="filterDraftDueMode() === 'on'" (click)="filterDraftDueMode.set('on')">On</button>
+          <button type="button" [class.active]="filterDraftDueMode() === 'after'" (click)="filterDraftDueMode.set('after')">After</button>
+          <button type="button" [class.active]="filterDraftDueMode() === 'range'" (click)="filterDraftDueMode.set('range')">Range</button>
+        </div>
+        <div class="filter-grid" [class.single-column]="filterDraftDueMode() !== 'range'">
+          <label>{{ filterDraftDueMode() === 'range' ? 'From' : 'Due date' }}<input type="date" [value]="filterDraftDue()" (input)="filterDraftDue.set($any($event.target).value)" /></label>
+          @if (filterDraftDueMode() === 'range') { <label>Through<input type="date" [min]="filterDraftDue()" [value]="filterDraftDueEnd()" (input)="filterDraftDueEnd.set($any($event.target).value)" /></label> }
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Premium range</legend>
+        <div class="filter-grid"><label>Minimum ($)<input type="number" min="0" placeholder="No minimum" [value]="filterDraftPremiumMin()" (input)="filterDraftPremiumMin.set($any($event.target).value)" /></label><label>Maximum ($)<input type="number" min="0" placeholder="No maximum" [value]="filterDraftPremiumMax()" (input)="filterDraftPremiumMax.set($any($event.target).value)" /></label></div>
+      </fieldset>
+      <fieldset>
+        <legend>Task information</legend>
+        <div class="filter-stack">
+          <label>Status<select [value]="filterDraftStatus()" (change)="filterDraftStatus.set($any($event.target).value)"><option value="">Any status</option>@for (status of statuses; track status) { <option [value]="status">{{ status }}</option> }</select></label>
+          <label>Task ID<input type="text" inputmode="numeric" placeholder="Any task ID" [value]="filterDraftTaskId()" (input)="filterDraftTaskId.set($any($event.target).value)" /></label>
+          <label>Policy #<input type="text" placeholder="Any policy" [value]="filterDraftPolicy()" (input)="filterDraftPolicy.set($any($event.target).value)" /></label>
+          <label>Client name<input type="text" placeholder="Any client" [value]="filterDraftClient()" (input)="filterDraftClient.set($any($event.target).value)" /></label>
+          <label>Last visit<input type="date" [value]="filterDraftLastVisit()" (input)="filterDraftLastVisit.set($any($event.target).value)" /></label>
+          <label>Cancelled<select [value]="filterDraftCancelled()" (change)="filterDraftCancelled.set($any($event.target).value)"><option value="">Any</option><option value="yes">Cancelled</option><option value="no">Not cancelled</option></select></label>
+          <label>Reason<select [value]="filterDraftReason()" (change)="filterDraftReason.set($any($event.target).value)"><option value="">Any reason</option>@for (reason of reasons; track reason) { <option [value]="reason">{{ reason }}</option> }</select></label>
+          <label>Consultant<select [value]="filterDraftConsultant()" (change)="filterDraftConsultant.set($any($event.target).value)"><option value="">Any consultant</option>@for (consultant of consultants; track consultant) { <option [value]="consultant">{{ consultant }}</option> }</select></label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="drawer-actions"><button type="button" class="secondary-button" (click)="resetFilters()">Reset</button><button type="button" class="primary-button" (click)="applyFilters()">Show results</button></div>
+  </aside>
+}
+
+@if (bulkAction()) {
+  <div class="modal-scrim"><section class="action-dialog" role="dialog" aria-modal="true" [attr.aria-labelledby]="bulkAction() + '-title'"><div class="dialog-header"><div><p class="eyebrow">{{ selectedTasks().length }} selected</p><h2 [id]="bulkAction() + '-title'">@switch (bulkAction()) { @case ('reassign') { Reassign tasks } @case ('status') { Change task status } @case ('map') { Selected locations } }</h2></div><button type="button" class="icon-button" (click)="bulkAction.set(null)" aria-label="Close dialog"><svg lucideX /></button></div>@if (bulkAction() === 'reassign') { <label class="dialog-field">Assign consultant<select [value]="bulkValue()" (change)="bulkValue.set($any($event.target).value)"><option value="">Choose a consultant</option>@for (consultant of consultants; track consultant) { <option [value]="consultant">{{ consultant }}</option> }</select></label> } @else if (bulkAction() === 'status') { <label class="dialog-field">New status<select [value]="bulkValue()" (change)="bulkValue.set($any($event.target).value)"><option value="">Choose a status</option>@for (status of statuses; track status) { <option [value]="status">{{ status }}</option> }</select></label> } @else { <div class="map-preview"><svg lucideMap aria-hidden="true" />@for (task of selectedTasks(); track task.id) { <div class="map-location"><strong>{{ task.client }}</strong><span>{{ task.address }}</span></div> }</div> }<div class="dialog-actions"><button type="button" class="secondary-button" (click)="bulkAction.set(null)">Close</button>@if (bulkAction() !== 'map') { <button type="button" class="primary-button" [disabled]="!bulkValue()" (click)="applyBulkAction()">Apply to {{ selectedTasks().length }}</button> }</div></section></div>
+}
+<p class="sr-only" aria-live="polite">{{ announcement() }}</p>

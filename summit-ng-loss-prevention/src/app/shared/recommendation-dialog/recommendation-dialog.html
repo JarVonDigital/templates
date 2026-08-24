@@ -1,0 +1,91 @@
+<dialog #dialog class="recommendation-dialog" [attr.aria-labelledby]="'recommendation-title-' + recommendationNumber()">
+  <form method="dialog" (submit)="$event.preventDefault(); save()">
+    <header class="dialog-header">
+      <div class="title-icon"><svg lucideLightbulb aria-hidden="true" /></div>
+      <div>
+        <span class="eyebrow">{{ visitTitle() }}</span>
+        <h2 [id]="'recommendation-title-' + recommendationNumber()">Add recommendation</h2>
+        <p>Capture an opportunity and turn it into a clear next action.</p>
+      </div>
+      <button type="button" class="icon-button" aria-label="Close recommendation dialog" (click)="close()"><svg lucideX aria-hidden="true" /></button>
+    </header>
+
+    <div class="dialog-body">
+      <section class="standard-panel" aria-labelledby="standard-heading">
+        <div class="section-heading">
+          <div><span class="step">1</span><h3 id="standard-heading">Start with a standard</h3></div>
+          <span class="optional">Optional</span>
+        </div>
+        <div class="section-grid">
+          <label>Section
+            <select [value]="sourceSection()"><option [value]="sourceSection()">{{ sourceSection() }}</option><option>Visited locations</option><option>Administrative</option><option>Safety program</option></select>
+          </label>
+          <label class="search-field">Search recommendations
+            <span><svg lucideSearch aria-hidden="true" /><input type="search" placeholder="Search by topic or code" [value]="query()" (input)="updateText('query', $event)" /></span>
+          </label>
+        </div>
+        <div class="recommendation-results" aria-label="Standard recommendations">
+          @for (item of filteredStandards(); track item.code) {
+            <button type="button" [class.selected]="selectedStandard()?.code === item.code" (click)="selectStandard(item)">
+              <span><strong>{{ item.title }}</strong><small>Administrative · {{ item.code }}</small></span>
+              @if (selectedStandard()?.code === item.code) { <svg lucideCheck aria-hidden="true" /> }
+            </button>
+          } @empty { <p class="empty-state">No matching standards. You can still create a custom recommendation.</p> }
+        </div>
+      </section>
+
+      <section aria-labelledby="details-heading">
+        <div class="section-heading"><div><span class="step">2</span><h3 id="details-heading">Recommendation details</h3></div></div>
+        <fieldset class="urgency-fieldset">
+          <legend>Level of urgency <span aria-hidden="true">*</span></legend>
+          <div class="urgency-options">
+            @for (level of urgencyLevels; track level) {
+              <label [class]="level.toLowerCase()" [class.selected]="urgency() === level">
+                <input type="radio" name="urgency" [value]="level" [checked]="urgency() === level" (change)="urgency.set(level)" />
+                <span class="urgency-dot"></span><span><strong>{{ level }}</strong><small>@switch (level) { @case ('Routine') { Monitor } @case ('Important') { Address soon } @default { Immediate action } }</small></span>
+              </label>
+            }
+          </div>
+        </fieldset>
+        <div class="details-grid">
+          <label class="title-field">Recommendation title *
+            <input required maxlength="100" placeholder="Summarize the recommendation" [value]="title()" (input)="updateText('title', $event)" />
+          </label>
+          <label>Recommendation number<input readonly [value]="'REC-' + recommendationNumber().toString().padStart(3, '0')" /></label>
+          <label>Date added<span class="input-with-icon"><svg lucideCalendarDays aria-hidden="true" /><input readonly value="08/21/2026" /></span></label>
+          <label>Due date *<input required type="date" [value]="dueDate()" (input)="updateText('dueDate', $event)" /></label>
+          <label>Classification<select><option>New</option><option>Repeat</option><option>Follow-up</option></select></label>
+          <label>Hazard category<select><option>Administrative</option><option>Property</option><option>Fleet</option><option>Workers compensation</option></select></label>
+          <label>Status<select><option>Open</option><option>In progress</option><option>Deferred</option><option>Closed</option></select></label>
+          <label>Close date<input type="date" /></label>
+          <label class="description-field">Description *
+            <textarea required rows="5" maxlength="1200" placeholder="Describe the observation, risk, and recommended corrective action…" [value]="description()" (input)="updateText('description', $event)"></textarea>
+            <small>{{ description().length }} / 1,200</small>
+          </label>
+          <label class="task-field">Follow-up task<textarea rows="3" placeholder="Add ownership, milestones, or follow-up notes…"></textarea></label>
+        </div>
+      </section>
+
+      <section aria-labelledby="evidence-heading">
+        <div class="section-heading"><div><span class="step">3</span><h3 id="evidence-heading">Evidence</h3></div><span class="optional">Up to 3 photos</span></div>
+        <label class="upload-zone">
+          <input type="file" accept="image/*" multiple (change)="addFiles($event)" />
+          <svg lucideUploadCloud aria-hidden="true" />
+          <span><strong>Add photos</strong><small>Choose or drag images here · PNG, JPG up to 10 MB</small></span>
+        </label>
+        @if (files().length) {
+          <ul class="file-list" aria-label="Selected photos">
+            @for (file of files(); track file) {
+              <li><svg lucideFileImage aria-hidden="true" /><span>{{ file }}</span><button type="button" [attr.aria-label]="'Remove ' + file" (click)="removeFile(file)"><svg lucideX aria-hidden="true" /></button></li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+
+    <footer class="dialog-actions">
+      <p><svg lucideSparkles aria-hidden="true" /> Required fields are marked with an asterisk.</p>
+      <div><button type="button" class="cancel-button" (click)="close()">Cancel</button><button pButton type="submit" class="save-button" [disabled]="!canSave()"><svg lucideCheck aria-hidden="true" />Add recommendation</button></div>
+    </footer>
+  </form>
+</dialog>

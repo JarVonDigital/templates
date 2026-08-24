@@ -1,0 +1,27 @@
+<aside class="primary-rail" [class.expanded]="expanded()">
+  <button
+    class="brand-toggle"
+    type="button"
+    (click)="toggle()"
+    [attr.aria-expanded]="expanded()"
+    aria-controls="primary-navigation"
+    [attr.aria-label]="expanded() ? 'Collapse navigation' : 'Expand navigation'"
+  >
+    <img class="compact-logo" ngSrc="/icon.svg" alt="" width="32" height="32" priority />
+    <img class="full-logo" ngSrc="/tagline.svg" alt="" width="160" height="74" priority />
+  </button>
+  <span class="divider" aria-hidden="true"></span>
+  <nav id="primary-navigation" aria-label="Primary navigation">
+    @for (item of navItems; track item.route) {
+      <a class="rail-link" [routerLink]="item.route" routerLinkActive="active" [attr.aria-label]="item.label" [title]="item.label">
+        @switch (item.icon) {
+          @case ('list') { <svg lucideList aria-hidden="true" /> }
+          @case ('users') { <svg lucideUsers aria-hidden="true" /> }
+          @case ('building-2') { <svg lucideBuilding2 aria-hidden="true" /> }
+          @case ('shield-plus') { <svg lucideShieldPlus aria-hidden="true" /> }
+        }
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</aside>

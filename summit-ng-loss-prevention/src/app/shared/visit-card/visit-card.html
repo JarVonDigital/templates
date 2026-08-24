@@ -1,0 +1,49 @@
+<article class="visit-card" [attr.aria-labelledby]="'visit-title-' + visit().id">
+  <header><div><span class="eyebrow">Scheduled visit</span><h2 [id]="'visit-title-' + visit().id">{{ visit().title }}</h2></div><button type="button" class="recommendation-button" aria-haspopup="dialog" [attr.aria-label]="'Add recommendation for ' + visit().title + '. ' + recommendationCount() + ' existing recommendations'" (click)="openRecommendationDialog()"><svg lucideShieldPlus aria-hidden="true" />@if (recommendationCount() > 0) { <span class="recommendation-count">{{ recommendationCount() }}</span> }</button></header>
+  <div class="fields">
+    <app-ui-field [id]="'visit-type-' + visit().id" label="Visit Type" value="Service Visit" [required]="true" kind="select" [options]="['Service Visit', 'Virtual Visit']" />
+    <div class="location-field">
+      <span [id]="'location-label-' + visit().id">Location <span aria-hidden="true">*</span><span class="sr-only">required</span></span>
+      <button type="button" class="location-button" [attr.aria-labelledby]="'location-label-' + visit().id" aria-haspopup="dialog" (click)="openAddressDialog()">
+        <svg lucideMapPin aria-hidden="true" />
+        <span>{{ visit().location || 'Choose a verified address' }}</span>
+        <svg lucidePencil aria-hidden="true" />
+      </button>
+    </div>
+    <app-ui-field [id]="'description-' + visit().id" label="Location Description" [value]="visit().description" [required]="true" />
+    <app-ui-field [id]="'visit-date-' + visit().id" label="Visit Date" [value]="visit().date" [required]="true" kind="date" />
+  </div>
+  <footer>
+    @if (canRemove()) { <button pButton type="button" class="remove-button" (click)="removeVisit.emit(visit().id)"><svg lucideTrash2 aria-hidden="true" /><span>Remove</span></button> } @else { <span></span> }
+    <button pButton type="button" class="add-button" [disabled]="!canAdd()" (click)="addVisit.emit()"><svg lucideCirclePlus aria-hidden="true" /><span>Add Visit</span></button>
+  </footer>
+</article>
+
+<dialog #addressDialog class="address-dialog" [attr.aria-labelledby]="'address-title-' + visit().id">
+  <form method="dialog" (submit)="$event.preventDefault(); saveAddress()">
+    <header class="dialog-header">
+      <div><span class="eyebrow">Verified location</span><h2 [id]="'address-title-' + visit().id">Visit address</h2></div>
+      <button type="button" class="icon-button" aria-label="Close address dialog" (click)="closeAddressDialog()"><svg lucideX aria-hidden="true" /></button>
+    </header>
+    <div class="address-fields">
+      <label class="search-field">Search verified address
+        <input [attr.list]="'verified-addresses-' + visit().id" autocomplete="street-address" [value]="formatAddress(address())" (input)="selectVerifiedAddress($event)" />
+        <datalist [id]="'verified-addresses-' + visit().id">
+          @for (option of verifiedAddresses; track option.street) { <option [value]="formatAddress(option)"></option> }
+        </datalist>
+        <span class="verified-hint"><svg lucideCheck aria-hidden="true" /> Select a match to populate the address fields.</span>
+      </label>
+      <label class="street-field">Street address *<input name="street" autocomplete="address-line1" required [value]="address().street" (input)="updateAddress('street', $event)" /></label>
+      <label>Unit / suite<input name="unit" autocomplete="address-line2" [value]="address().unit" (input)="updateAddress('unit', $event)" /></label>
+      <label>City *<input name="city" autocomplete="address-level2" required [value]="address().city" (input)="updateAddress('city', $event)" /></label>
+      <label>State *<input name="state" autocomplete="address-level1" required maxlength="2" [value]="address().state" (input)="updateAddress('state', $event)" /></label>
+      <label>ZIP code *<input name="postal-code" autocomplete="postal-code" required inputmode="numeric" [value]="address().postalCode" (input)="updateAddress('postalCode', $event)" /></label>
+    </div>
+    <footer class="dialog-actions">
+      <button type="button" class="dialog-cancel" (click)="closeAddressDialog()">Cancel</button>
+      <button pButton type="submit" class="dialog-save"><svg lucideCheck aria-hidden="true" />Use address</button>
+    </footer>
+  </form>
+</dialog>
+
+<app-recommendation-dialog [visitTitle]="visit().title" [recommendationNumber]="recommendationCount() + 1" (saved)="recommendationSaved()" />

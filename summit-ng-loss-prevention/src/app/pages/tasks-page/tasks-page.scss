@@ -1,0 +1,10 @@
+.content { display: grid; width: 100%; gap: 26px; padding: 16px; }
+.task-details { padding: 17px 21px 27px; border: 1px solid var(--summit-border); border-radius: 6px; background: #fff; h2 { margin: 0 0 17px; color: #111; font-size: 17px; font-weight: 400; } }
+.details-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 14px; }
+.visits-grid { display: grid; grid-template-columns: repeat(2, minmax(300px, 1fr)); gap: 10px; align-items: start; max-width: 786px; }
+.action-bar { position: sticky; bottom: 0; z-index: 20; display: flex; min-height: 59px; align-items: center; justify-content: flex-end; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--summit-border-soft); background: #fff; }
+.action-bar button.p-button { border: 0; box-shadow: none; }
+.cancel-button.p-button { background: transparent; color: var(--summit-muted); }
+.save-button.p-button { display: flex; min-height: 38px; align-items: center; gap: 8px; padding: 0 14px; border-radius: 6px; background: var(--summit-mint); color: #092b31; svg { width: 18px; } }
+@media (max-width: 1100px) { .details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .visits-grid { grid-template-columns: 1fr; max-width: none; } }
+@media (max-width: 760px) { .content { padding: 18px 12px; } .details-grid { grid-template-columns: 1fr; } .visits-grid { grid-template-columns: minmax(0, 1fr); } }

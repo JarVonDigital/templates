@@ -1,0 +1,26 @@
+<header class="top-bar">
+  <nav class="page-tabs" aria-label="Primary workspace sections">
+    <a [routerLink]="['/tasks', taskId()]" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
+      <span class="tab-icon"><svg lucideList aria-hidden="true" /></span><span class="tab-label">Task</span>
+    </a>
+    <a [routerLink]="['/tasks', taskId(), 'account']" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <span class="tab-icon"><svg lucideUsers aria-hidden="true" /></span><span class="tab-label">Account</span>
+    </a>
+    <a [routerLink]="['/tasks', taskId(), 'claims']" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <span class="tab-icon"><svg lucideBuilding2 aria-hidden="true" /></span><span class="tab-label">Claims</span>
+    </a>
+    <a [routerLink]="['/tasks', taskId(), 'recommendations']" routerLinkActive="active" ariaCurrentWhenActive="page" [class.has-alert]="highSeverityRecommendationCount() > 0">
+      <span class="tab-icon">
+        <svg lucideShieldPlus aria-hidden="true" />
+        @if (highSeverityRecommendationCount() > 0) { <span class="severity-badge" aria-hidden="true">{{ highSeverityRecommendationCount() }}</span> }
+      </span>
+      <span class="tab-label">Recommendations</span>
+      @if (highSeverityRecommendationCount() > 0) { <span class="sr-only">{{ highSeverityRecommendationCount() }} high severity</span> }
+    </a>
+  </nav>
+  <div class="quick-actions" aria-label="Task actions">
+    <button type="button" aria-label="Open attachments"><svg lucidePaperclip aria-hidden="true" /></button>
+    <button type="button" aria-label="Take a photo"><svg lucideCamera aria-hidden="true" /></button>
+    <button type="button" aria-label="Send task"><svg lucideSend aria-hidden="true" /></button>
+  </div>
+</header>

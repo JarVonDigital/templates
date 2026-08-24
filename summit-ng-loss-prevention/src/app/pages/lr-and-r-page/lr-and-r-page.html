@@ -1,0 +1,151 @@
+<main class="lr-page">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Loss prevention review</span>
+      <h1>LR&amp;R</h1>
+      <p><svg lucideShieldCheck aria-hidden="true" />{{ latestVisitLocation }}</p>
+    </div>
+    <div class="heading-status">
+      <svg lucideCheckCircle2 aria-hidden="true" />
+      <span><strong>{{ isNotApplicable() ? 'Not applicable' : allSectionsComplete() ? 'All required fields complete' : 'Review in progress' }}</strong>{{ isNotApplicable() ? 'Sections disabled for this assessment' : completedSectionCount() + ' of ' + sections.length + ' sections complete' }}</span>
+    </div>
+  </header>
+
+  @if (saved()) {
+    <div class="success-banner" role="status">
+      <svg lucideCheckCircle2 aria-hidden="true" />
+      <span><strong>Draft saved.</strong>{{ announcement() }}</span>
+    </div>
+  }
+
+  <form class="form-layout" [class.not-applicable]="isNotApplicable()" (submit)="$event.preventDefault()">
+    <nav class="section-nav" aria-label="LR and R sections">
+      <span class="nav-label">On this form</span>
+      @for (section of sections; track section.id; let index = $index) {
+        <a [href]="'#' + section.id" [attr.aria-disabled]="isNotApplicable()" (click)="activeRecommendationSection.set(section.label); isNotApplicable() && $event.preventDefault()">
+          <span class="nav-number">{{ index + 1 }}</span>
+          <span><strong>{{ section.label }}</strong><small>{{ section.description }}</small></span>
+          @if (isSectionComplete(section.id)) { <svg lucideCheck aria-hidden="true" /> }
+        </a>
+      }
+      <div class="progress-summary"><span><strong>{{ completionPercentage() }}%</strong> complete</span><div aria-hidden="true"><i [style.width.%]="completionPercentage()"></i></div></div>
+    </nav>
+
+    <div class="form-content" [attr.inert]="isNotApplicable() ? '' : null">
+      <section class="form-section" id="visit" aria-labelledby="visit-heading">
+        <header class="section-header">
+        <div class="section-heading">
+          <span class="section-icon"><svg lucideCalendarDays aria-hidden="true" /></span>
+          <span><span class="step-label">Section 1</span><strong id="visit-heading">Visit details</strong><small>Confirm when this location was reviewed.</small></span>
+        </div>
+        <div class="section-actions"><button type="button" class="section-complete" [disabled]="isNotApplicable()" [attr.aria-pressed]="isSectionComplete('visit')" (click)="toggleSectionComplete('visit')"><svg lucideCheck aria-hidden="true" />{{ isSectionComplete('visit') ? 'Completed' : 'Mark complete' }}</button></div>
+        <button type="button" class="collapse-button" [disabled]="isNotApplicable()" [attr.aria-expanded]="!isCollapsed('visit')" aria-controls="visit-content" aria-label="Toggle Visit details" (click)="activeRecommendationSection.set('Visit details'); toggleSection('visit')"><svg class="chevron" lucideChevronDown aria-hidden="true" /></button>
+        </header>
+        <div class="section-body" id="visit-content" [class.collapsed]="isCollapsed('visit')">
+          <div class="field-grid one-column">
+            <label class="field"><span>Visit date <em aria-hidden="true">*</em></span><input type="date" value="2026-08-21" required /></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" id="accident-review" aria-labelledby="accident-heading">
+        <header class="section-header">
+        <div class="section-heading">
+          <span class="section-icon"><svg lucideClipboardCheck aria-hidden="true" /></span>
+          <span><span class="step-label">Section 2</span><strong id="accident-heading">Accident review</strong><small>Document claims reviewed with the insured.</small></span>
+        </div>
+        <div class="section-actions"><button type="button" class="section-complete" [disabled]="isNotApplicable()" [attr.aria-pressed]="isSectionComplete('accident-review')" (click)="toggleSectionComplete('accident-review')"><svg lucideCheck aria-hidden="true" />{{ isSectionComplete('accident-review') ? 'Completed' : 'Mark complete' }}</button></div>
+        <button type="button" class="collapse-button" [disabled]="isNotApplicable()" [attr.aria-expanded]="!isCollapsed('accident-review')" aria-controls="accident-content" aria-label="Toggle Accident review" (click)="activeRecommendationSection.set('Accident review'); toggleSection('accident-review')"><svg class="chevron" lucideChevronDown aria-hidden="true" /></button>
+        </header>
+        <div class="section-body" id="accident-content" [class.collapsed]="isCollapsed('accident-review')">
+          <fieldset class="field choice-field"><legend>Current-year comments needed? <em aria-hidden="true">*</em></legend><div class="segmented-options"><label><input type="radio" name="current-comments" checked /><span>Yes</span></label><label><input type="radio" name="current-comments" /><span>No</span></label></div></fieldset>
+          <div class="field-group">
+            <div class="group-heading"><div><h3>Current-year claims</h3><p>Review the selected period and summarize relevant activity.</p></div></div>
+            <div class="field-grid three-column">
+              <label class="field"><span>From <em aria-hidden="true">*</em></span><input type="date" value="2026-08-21" required /></label>
+              <label class="field"><span>To <em aria-hidden="true">*</em></span><input type="date" value="2026-08-24" required /></label>
+              <label class="field"><span>Number of claims</span><input type="number" min="0" value="1" /></label>
+            </div>
+            <label class="field textarea-field"><span>Comments to the insured <button type="button" class="info-button" aria-label="About comments to the insured"><svg lucideInfo aria-hidden="true" /></button></span><textarea rows="4" maxlength="8000" placeholder="Summarize the claims discussed and any follow-up guidance...">Reviewed one current-year claim with the insured.</textarea><small>48 / 8,000</small></label>
+          </div>
+
+          <fieldset class="field choice-field"><legend>Multi-year comments needed? <em aria-hidden="true">*</em></legend><div class="segmented-options"><label><input type="radio" name="multi-comments" checked /><span>Yes</span></label><label><input type="radio" name="multi-comments" /><span>No</span></label></div></fieldset>
+          <div class="field-group">
+            <div class="group-heading"><div><h3>Multi-year claims</h3><p>Capture trends or patterns across the full review period.</p></div></div>
+            <div class="field-grid three-column">
+              <label class="field"><span>From</span><input type="date" value="2026-08-21" /></label>
+              <label class="field"><span>To</span><input type="date" value="2026-08-24" /></label>
+              <label class="field"><span>Number of claims</span><input type="number" min="0" value="1" /></label>
+            </div>
+            <label class="field textarea-field"><span>Comments to the insured <button type="button" class="info-button" aria-label="About multi-year comments"><svg lucideInfo aria-hidden="true" /></button></span><textarea rows="4" maxlength="8000" placeholder="Summarize trends, patterns, or areas of concern...">No adverse multi-year trends were identified.</textarea><small>45 / 8,000</small></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" id="visit-notes" aria-labelledby="notes-heading">
+        <header class="section-header">
+        <div class="section-heading">
+          <span class="section-icon"><svg lucideFileText aria-hidden="true" /></span>
+          <span><span class="step-label">Section 3</span><strong id="notes-heading">Visit review notes</strong><small>Record operational and safety observations.</small></span>
+        </div>
+        <div class="section-actions"><button type="button" class="section-complete" [disabled]="isNotApplicable()" [attr.aria-pressed]="isSectionComplete('visit-notes')" (click)="toggleSectionComplete('visit-notes')"><svg lucideCheck aria-hidden="true" />{{ isSectionComplete('visit-notes') ? 'Completed' : 'Mark complete' }}</button></div>
+        <button type="button" class="collapse-button" [disabled]="isNotApplicable()" [attr.aria-expanded]="!isCollapsed('visit-notes')" aria-controls="notes-content" aria-label="Toggle Visit review notes" (click)="activeRecommendationSection.set('Visit review notes'); toggleSection('visit-notes')"><svg class="chevron" lucideChevronDown aria-hidden="true" /></button>
+        </header>
+        <div class="section-body" id="notes-content" [class.collapsed]="isCollapsed('visit-notes')">
+          <label class="field textarea-field"><span>Operations</span><textarea rows="4" maxlength="8000" placeholder="Describe the operation, workflow, staffing, and changes since the last visit...">Operations were reviewed with site leadership.</textarea><small>46 / 8,000</small></label>
+
+          <div class="review-topic">
+            <fieldset class="field choice-field"><legend>Safety activity reviewed? <em aria-hidden="true">*</em> <button type="button" class="info-button" aria-label="About safety activity review"><svg lucideInfo aria-hidden="true" /></button></legend><div class="segmented-options"><label><input type="radio" name="safety-review" checked /><span>Yes</span></label><label><input type="radio" name="safety-review" /><span>No</span></label></div></fieldset>
+            <label class="field textarea-field"><span>Safety activity</span><textarea rows="4" maxlength="8000" placeholder="Describe training, meetings, inspections, and participation...">Monthly safety meetings and documented inspections are active.</textarea><small>61 / 8,000</small></label>
+          </div>
+
+          <div class="review-topic">
+            <fieldset class="field choice-field"><legend>Job site or facility survey?</legend><div class="segmented-options"><label><input type="radio" name="site-survey" checked /><span>Yes</span></label><label><input type="radio" name="site-survey" /><span>No</span></label></div></fieldset>
+            <label class="field textarea-field"><span>Job site or facility survey review <em aria-hidden="true">*</em></span><textarea rows="4" maxlength="8000" placeholder="Document conditions observed and areas visited...">The facility was orderly, with clear aisles and maintained exits.</textarea><small>62 / 8,000</small></label>
+          </div>
+
+          <div class="review-topic">
+            <fieldset class="field choice-field"><legend>Previous recommendation review? <em aria-hidden="true">*</em></legend><div class="segmented-options"><label><input type="radio" name="previous-review" checked /><span>Yes</span></label><label><input type="radio" name="previous-review" /><span>No</span></label></div></fieldset>
+            <label class="field textarea-field"><span>Previous recommendation</span><textarea rows="4" maxlength="8000" placeholder="Note progress, evidence reviewed, and any open follow-up...">Prior recommendations were reviewed and confirmed complete.</textarea><small>56 / 8,000</small></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" id="additional-info" aria-labelledby="additional-heading">
+        <header class="section-header">
+        <div class="section-heading">
+          <span class="section-icon"><svg lucideInfo aria-hidden="true" /></span>
+          <span><span class="step-label">Section 4</span><strong id="additional-heading">Additional info</strong><small>Add final context and recommendation details.</small></span>
+        </div>
+        <div class="section-actions"><button type="button" class="section-complete" [disabled]="isNotApplicable()" [attr.aria-pressed]="isSectionComplete('additional-info')" (click)="toggleSectionComplete('additional-info')"><svg lucideCheck aria-hidden="true" />{{ isSectionComplete('additional-info') ? 'Completed' : 'Mark complete' }}</button></div>
+        <button type="button" class="collapse-button" [disabled]="isNotApplicable()" [attr.aria-expanded]="!isCollapsed('additional-info')" aria-controls="additional-content" aria-label="Toggle Additional info" (click)="activeRecommendationSection.set('Additional info'); toggleSection('additional-info')"><svg class="chevron" lucideChevronDown aria-hidden="true" /></button>
+        </header>
+        <div class="section-body" id="additional-content" [class.collapsed]="isCollapsed('additional-info')">
+          <fieldset class="field choice-field"><legend>Additional information to include? <em aria-hidden="true">*</em> <button type="button" class="info-button" aria-label="About additional information"><svg lucideInfo aria-hidden="true" /></button></legend><div class="segmented-options"><label><input type="radio" name="additional" checked /><span>Yes</span></label><label><input type="radio" name="additional" /><span>No</span></label></div></fieldset>
+          <label class="field textarea-field"><span>Additional information</span><textarea rows="5" maxlength="8000" placeholder="Add context that does not fit in the review sections above..."></textarea><small>0 / 8,000</small></label>
+
+        </div>
+      </section>
+    </div>
+  </form>
+
+  <div class="form-toolbar" aria-label="Form actions">
+    <div class="assessment-field">
+      <label for="assessment">Assessment</label>
+      <select id="assessment" [value]="assessment()" (change)="updateAssessment($event)">
+        <option>Not applicable</option>
+        <option>Satisfactory</option>
+        <option>Needs improvement</option>
+        <option>Unsatisfactory</option>
+      </select>
+    </div>
+    <button type="button" class="completion-toggle" [disabled]="isNotApplicable()" [attr.aria-pressed]="allSectionsComplete()" (click)="toggleAllSections()">
+      <span class="check-box"><svg lucideCheck aria-hidden="true" /></span>{{ allSectionsComplete() ? 'All completed' : 'Complete all' }}
+    </button>
+    <span class="toolbar-divider" aria-hidden="true"></span>
+    <button type="button" class="secondary-button" (click)="saveDraft()"><svg lucideSave aria-hidden="true" />Save draft</button>
+    <button type="button" class="add-recommendation" [attr.aria-label]="'Add recommendation for ' + activeRecommendationSection()" (click)="openRecommendation(activeRecommendationSection())"><svg lucideShieldPlus aria-hidden="true" />Add recommendation @if (totalRecommendationCount()) { <span>{{ totalRecommendationCount() }}</span> }</button>
+  </div>
+  <app-recommendation-dialog [visitTitle]="'LR&R · ' + activeRecommendationSection()" [sourceSection]="activeRecommendationSection()" [recommendationNumber]="(recommendationCounts()[activeRecommendationSection()] ?? 0) + 1" (saved)="recommendationSaved()" />
+  <p class="sr-only" aria-live="polite">{{ announcement() }}</p>
+</main>

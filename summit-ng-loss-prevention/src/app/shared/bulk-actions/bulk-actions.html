@@ -1,0 +1,18 @@
+<div class="bulk-bar" [attr.aria-label]="ariaLabel()">
+  <strong>{{ selectedCount() }} selected</strong>
+  @for (action of actions(); track action.id) {
+    <button type="button" (click)="actionSelected.emit(action.id)">
+      @switch (action.icon) {
+        @case ('download') { <svg lucideDownload aria-hidden="true" /> }
+        @case ('reassign') { <svg lucideArrowLeftRight aria-hidden="true" /> }
+        @case ('status') { <svg lucidePencil aria-hidden="true" /> }
+        @case ('map') { <svg lucideMap aria-hidden="true" /> }
+        @case ('verified') { <svg lucideBadgeCheck aria-hidden="true" /> }
+        @case ('completed') { <svg lucideCheckCircle2 aria-hidden="true" /> }
+        @case ('cancelled') { <svg lucideBan aria-hidden="true" /> }
+      }
+      {{ action.label }}
+    </button>
+  }
+  <button type="button" class="clear-selection" (click)="cleared.emit()" aria-label="Clear selection"><svg lucideX aria-hidden="true" /></button>
+</div>

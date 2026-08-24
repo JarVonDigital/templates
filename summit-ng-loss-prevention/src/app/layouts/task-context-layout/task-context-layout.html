@@ -1,0 +1,30 @@
+<div class="task-context">
+  <aside class="task-sidebar" aria-label="Task navigation">
+    <div class="task-heading">
+      <a routerLink="/tasks" aria-label="Back to task details"><svg lucideArrowLeft aria-hidden="true" /></a>
+      <span class="task-number">{{ taskId() }}</span>
+      <span class="status">Pending</span>
+    </div>
+    <a class="visit-link" [routerLink]="['/tasks', taskId()]" fragment="task-details" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"><svg lucideInfo aria-hidden="true" />Visit Details</a>
+    <button pButton type="button" class="worksheet-button"><svg lucidePrinter aria-hidden="true" /><span>Visit Worksheet</span></button>
+    <div class="forms-navigation">
+      <h2>Forms</h2>
+      <ul>
+        @for (form of forms(); track form.slug) {
+          <li [class.complete]="form.completed">
+            <a [routerLink]="['/tasks', taskId(), 'forms', form.slug]" routerLinkActive="active" ariaCurrentWhenActive="page">
+              @if (form.completed) { <svg lucideCheckCircle2 aria-hidden="true" /> } @else { <svg lucideCircle aria-hidden="true" /> }
+              <span>{{ form.label }}</span>
+              @if (form.completed) { <span class="sr-only">Completed</span> }
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </aside>
+
+  <div class="task-workspace">
+    <app-top-navigation [taskId]="taskId()" [highSeverityRecommendationCount]="highSeverityRecommendationCount()" />
+    <router-outlet />
+  </div>
+</div>

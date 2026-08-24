@@ -1,0 +1,55 @@
+:root {
+  --summit-navy: #064f7f;
+  --summit-blue: #147bc1;
+  --summit-teal: #078474;
+  --summit-mint: #5bc7b7;
+  --summit-ink: #202c40;
+  --summit-muted: #6f7f94;
+  --summit-border: #9dafc6;
+  --summit-border-soft: #ccd7e4;
+  --summit-canvas: #fbfbfc;
+  color-scheme: light;
+  font-family: "Verb", Inter, "Segoe UI", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+.table-card-shell { display: flex; min-height: 0; flex: 1 1 auto; flex-direction: column; overflow: hidden; border: 1px solid var(--summit-border-soft); border-radius: 14px; background: #fff; box-shadow: 0 12px 34px rgb(14 49 76 / 7%); }
+html, body { min-width: 320px; min-height: 100%; margin: 0; }
+body { background: var(--summit-canvas); color: var(--summit-ink); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 3px solid rgb(20 123 193 / 35%);
+  outline-offset: 2px;
+}
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+.filter-drawer {
+  .filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .filter-grid.single-column { grid-template-columns: 1fr; }
+  .filter-stack { display: grid; gap: 14px; }
+  .optional { color: var(--summit-muted); font-weight: 400; }
+  input[type='text'], input[type='number'] { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #bdcad8; border-radius: 7px; background: #fff; color: #25374b; }
+  input::placeholder { color: #8b9bad; }
+  select:disabled { background: #edf1f4; color: #8b9bad; cursor: not-allowed; }
+  .filter-hint { margin: 2px 0 0; color: var(--summit-muted); font-size: 12px; font-style: italic; }
+  .segmented-control { display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; margin-bottom: 14px; border: 1px solid var(--summit-border-soft); border-radius: 8px; }
+  .segmented-control button { min-height: 40px; border: 0; border-right: 1px solid var(--summit-border-soft); background: #fff; color: var(--summit-ink); }
+  .segmented-control button:last-child { border-right: 0; }
+  .segmented-control button.active { background: var(--summit-navy); color: #fff; }
+}
+
+@media (max-width: 560px) {
+  .filter-drawer .filter-grid { grid-template-columns: 1fr; }
+}
+
+.tasks-page {
+  .results-count { display: flex; gap: 3px; color: var(--summit-muted); font-size: 12px; }
+  .status-pill[data-status='Pending'] { background: #fff0cf; color: #75530d; }
+  .status-pill[data-status='Completed'] { background: #ddf4ec; color: #076c5d; }
+  .empty-state { height: 220px; text-align: center; }
+  .page-header .search-field { width: 100%; }
+  .task-card thead { position: sticky; top: 0; z-index: 5; }
+  .task-card th.active-sort { background: var(--summit-navy); }
+  .task-card th.active-sort .sort-button { color: #fff; }
+}
