@@ -19,8 +19,9 @@
     </a>
   </nav>
   <div class="quick-actions" aria-label="Task actions">
-    <button type="button" aria-label="Open attachments"><svg lucidePaperclip aria-hidden="true" /></button>
-    <button type="button" aria-label="Take a photo"><svg lucideCamera aria-hidden="true" /></button>
+    <button type="button" aria-label="Open attachments" (click)="openAttachments.emit()"><svg lucidePaperclip aria-hidden="true" /></button>
+    <button type="button" class="desktop-capture" aria-label="Take a photo" (click)="takePhoto.emit()"><svg lucideCamera aria-hidden="true" /></button>
     <button type="button" aria-label="Send task"><svg lucideSend aria-hidden="true" /></button>
   </div>
+  <button type="button" class="mobile-capture" aria-label="Take a photo" (click)="takePhoto.emit()"><svg lucideCamera aria-hidden="true" /><span>Photo</span></button>
 </header>

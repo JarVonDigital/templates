@@ -2,7 +2,7 @@
   <header class="page-heading">
     <div>
       <span class="eyebrow">Loss prevention review</span>
-      <h1>LR&amp;R</h1>
+      <h1>Loss Runs &amp; Recommendations</h1>
       <p><svg lucideShieldCheck aria-hidden="true" />{{ latestVisitLocation }}</p>
     </div>
     <div class="heading-status">
@@ -19,7 +19,7 @@
   }
 
   <form class="form-layout" [class.not-applicable]="isNotApplicable()" (submit)="$event.preventDefault()">
-    <nav class="section-nav" aria-label="LR and R sections">
+    <nav class="section-nav" aria-label="Loss Runs and Recommendations sections">
       <span class="nav-label">On this form</span>
       @for (section of sections; track section.id; let index = $index) {
         <a [href]="'#' + section.id" [attr.aria-disabled]="isNotApplicable()" (click)="activeRecommendationSection.set(section.label); isNotApplicable() && $event.preventDefault()">
@@ -146,6 +146,6 @@
     <button type="button" class="secondary-button" (click)="saveDraft()"><svg lucideSave aria-hidden="true" />Save draft</button>
     <button type="button" class="add-recommendation" [attr.aria-label]="'Add recommendation for ' + activeRecommendationSection()" (click)="openRecommendation(activeRecommendationSection())"><svg lucideShieldPlus aria-hidden="true" />Add recommendation @if (totalRecommendationCount()) { <span>{{ totalRecommendationCount() }}</span> }</button>
   </div>
-  <app-recommendation-dialog [visitTitle]="'LR&R · ' + activeRecommendationSection()" [sourceSection]="activeRecommendationSection()" [recommendationNumber]="(recommendationCounts()[activeRecommendationSection()] ?? 0) + 1" (saved)="recommendationSaved()" />
+  <app-recommendation-dialog [visitTitle]="'Loss Runs &amp; Recommendations · ' + activeRecommendationSection()" [sourceSection]="activeRecommendationSection()" [recommendationNumber]="(recommendationCounts()[activeRecommendationSection()] ?? 0) + 1" (saved)="recommendationSaved()" />
   <p class="sr-only" aria-live="polite">{{ announcement() }}</p>
 </main>

@@ -6,6 +6,7 @@
       <span class="status">Pending</span>
     </div>
     <a class="visit-link" [routerLink]="['/tasks', taskId()]" fragment="task-details" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"><svg lucideInfo aria-hidden="true" />Visit Details</a>
+    <button pButton type="button" class="contacts-button" (click)="openContacts()"><svg lucidePhone aria-hidden="true" /><span>Contacts</span></button>
     <button pButton type="button" class="worksheet-button"><svg lucidePrinter aria-hidden="true" /><span>Visit Worksheet</span></button>
     <div class="forms-navigation">
       <h2>Forms</h2>
@@ -24,7 +25,9 @@
   </aside>
 
   <div class="task-workspace">
-    <app-top-navigation [taskId]="taskId()" [highSeverityRecommendationCount]="highSeverityRecommendationCount()" />
+    <app-top-navigation [taskId]="taskId()" [highSeverityRecommendationCount]="highSeverityRecommendationCount()" (takePhoto)="openPhotoDialog()" (openAttachments)="openDocumentDialog()" />
     <router-outlet />
   </div>
 </div>
+<app-photo-upload-dialog [open]="photoDialogOpen()" (closed)="closePhotoDialog()" />
+<app-document-upload-dialog [open]="documentDialogOpen()" (closed)="closeDocumentDialog()" />

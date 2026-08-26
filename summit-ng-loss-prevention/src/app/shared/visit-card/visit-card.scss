@@ -1,24 +1,28 @@
-.visit-card { position: relative; display: flex; min-height: 422px; flex-direction: column; overflow: hidden; padding: 22px 24px 15px; border: 1px solid var(--summit-border); border-radius: 10px; background: linear-gradient(180deg, #f7fbff 0, #fff 90px); box-shadow: 0 4px 14px rgb(12 45 75 / 5%); transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; animation: visit-enter 280ms ease both; }
-.visit-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: linear-gradient(var(--summit-blue), var(--summit-teal)); content: ''; opacity: 0; transition: opacity 180ms ease; }
+.visit-card { --visit-accent: #357fa9; --visit-surface: #f3f9fd; position: relative; display: flex; min-height: 418px; flex-direction: column; overflow: hidden; padding: 18px 24px 15px; border: 1px solid color-mix(in srgb, var(--visit-accent) 43%, #b5cad7); border-radius: 10px; background: linear-gradient(180deg, var(--visit-surface) 0, #fff 135px); box-shadow: 0 4px 14px rgb(12 45 75 / 5%); transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; animation: visit-enter 280ms ease both; }
+.visit-card.is-past { --visit-accent: #748391; --visit-surface: #f5f7f8; }.visit-card.is-present { --visit-accent: #08836f; --visit-surface: #eefaf6; }.visit-card.is-future { --visit-accent: #286fa2; --visit-surface: #eef6fd; }
+.visit-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--visit-accent); content: ''; opacity: .75; transition: opacity 180ms ease; }
 .visit-card:hover, .visit-card:focus-within { border-color: #7096b7; box-shadow: 0 12px 28px rgb(12 45 75 / 11%); transform: translateY(-2px); }
 .visit-card:hover::before, .visit-card:focus-within::before { opacity: 1; }
-header, footer { display: flex; align-items: center; justify-content: space-between; }
+header, footer { display: flex; align-items: center; justify-content: space-between; }.header-actions, .visit-actions { display: flex; align-items: center; gap: 8px; }.header-actions { padding: 6px; margin: -6px; }
 h2 { margin: 0; font-size: 17px; font-weight: 400; }
-.eyebrow { display: block; margin-bottom: 3px; color: var(--summit-blue); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.recommendation-button { position: relative; display: grid; width: 40px; height: 40px; padding: 0; border: 1px solid #d9e1e8; border-radius: 50%; background: #f3f7fa; color: var(--summit-navy); place-items: center; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.eyebrow { display: block; margin-bottom: 3px; color: var(--visit-accent); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.timing-chip { padding: 4px 7px; border-radius: 999px; background: color-mix(in srgb, var(--visit-accent) 12%, white); color: var(--visit-accent); font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.recommendation-button.p-button { position: relative; display: grid; width: 40px; height: 40px; min-height: 40px; padding: 0; overflow: visible; border: 1px solid #d9e1e8; border-radius: 50%; background: #f3f7fa; color: var(--summit-navy); place-items: center; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
 .recommendation-button:hover { border-color: var(--summit-blue); background: #e8f4fc; box-shadow: 0 5px 13px rgb(12 73 117 / 14%); transform: translateY(-2px) rotate(-3deg); }
 .recommendation-button svg { width: 23px; }
 .recommendation-count { position: absolute; top: -6px; right: -6px; display: grid; min-width: 19px; height: 19px; padding-inline: 4px; border: 2px solid #fff; border-radius: 10px; background: var(--summit-blue); color: #fff; font-size: 9px; font-weight: 800; line-height: 1; place-items: center; }
-.fields { display: grid; gap: 20px; margin-top: 15px; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px; }
+.contact-field, .location-field, .fields > app-ui-field:not(.visit-type-field):not(.visit-date-field) { grid-column: 1 / -1; }
 .location-field { display: grid; gap: 6px; color: var(--summit-ink); font-size: 12px; }
-.location-button { display: grid; min-height: 43px; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid var(--summit-border-soft); border-radius: 6px; background: #fff; color: var(--summit-ink); text-align: left; transition: border-color 150ms ease, background 150ms ease; }
+.location-button.p-button { display: grid; width: 100%; min-height: 43px; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid var(--summit-border-soft); border-radius: 6px; background: #fff; color: var(--summit-ink); text-align: left; transition: border-color 150ms ease, background 150ms ease; }
 .location-button:hover { border-color: var(--summit-blue); background: #f6fbff; }
 .location-button svg { width: 17px; height: 17px; color: var(--summit-blue); }
 .location-button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact-field { display: grid; gap: 6px; color: var(--summit-ink); font-size: 12px; }.contact-field > span { display: inline-flex; align-items: center; gap: 5px; }.contact-field svg { width: 15px; height: 15px; color: var(--visit-accent); }.contact-picker.p-button { display: flex; width: 100%; min-height: 43px; align-items: center; justify-content: space-between; padding: 0 12px; border: 1px solid var(--summit-border-soft); border-radius: 6px; background: #fff; color: var(--summit-ink); font: inherit; text-align: left; }.contact-picker:hover { border-color: var(--visit-accent); background: var(--visit-surface); }.contact-picker:focus-visible { outline: 3px solid color-mix(in srgb, var(--visit-accent) 20%, transparent); outline-offset: 1px; }.contact-picker-action { color: var(--visit-accent); font-size: 11px; font-weight: 750; }
 footer { margin-top: auto; padding-top: 17px; }
 button.p-button { display: flex; min-height: 41px; align-items: center; gap: 7px; padding: 0 11px; border: 0; border-radius: 6px; box-shadow: none; font-size: 14px; svg { width: 19px; } }
 .remove-button.p-button { background: transparent; color: #777; }
 .add-button.p-button { background: #f0f5fa; color: #22689d; &:disabled { background: #e5e5e5; color: #aaa; } }
+.calendar-button { display: inline-flex; min-height: 37px; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid color-mix(in srgb, var(--visit-accent) 35%, #c5d6e0); border-radius: 6px; background: #fff; color: var(--visit-accent); font: inherit; font-size: 12px; font-weight: 700; }.calendar-button svg { width: 16px; }.calendar-button:hover { background: var(--visit-surface); }.calendar-button:focus-visible { outline: 3px solid color-mix(in srgb, var(--visit-accent) 25%, transparent); outline-offset: 2px; }
 
 .address-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid var(--summit-border); border-radius: 12px; background: #fff; color: var(--summit-ink); box-shadow: 0 24px 70px rgb(0 24 48 / 28%); }
 .address-dialog::backdrop { background: rgb(4 30 52 / 55%); backdrop-filter: blur(3px); }
@@ -39,5 +43,5 @@ button.p-button { display: flex; min-height: 41px; align-items: center; gap: 7px
 .dialog-save svg { width: 17px; }
 
 @keyframes visit-enter { from { opacity: 0; transform: translateY(12px); } }
-@media (max-width: 560px) { .address-fields { grid-template-columns: 1fr; } .search-field, .street-field { grid-column: auto; } }
+@media (max-width: 560px) { .fields { grid-template-columns: 1fr; } .visit-type-field, .visit-date-field { grid-column: 1; } .address-fields { grid-template-columns: 1fr; } .search-field, .street-field { grid-column: auto; } }
 @media (prefers-reduced-motion: reduce) { .visit-card { animation: none; transition: none; } }

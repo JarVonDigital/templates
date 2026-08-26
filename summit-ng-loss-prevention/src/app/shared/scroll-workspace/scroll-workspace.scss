@@ -1,0 +1,5 @@
+:host { display: flex; height: var(--scroll-workspace-height); min-height: 0; flex: 1 1 auto; flex-direction: column; overflow: hidden; }
+.scroll-heading { min-height: 0; flex: 0 0 auto; overflow: hidden; }
+.scroll-surface { display: flex; min-height: 0; flex: 1 1 auto; flex-direction: column; overflow: hidden; border: 1px solid var(--scroll-surface-border, #dce5ed); border-radius: var(--scroll-surface-radius, 14px); background: var(--scroll-surface-background, #fff); box-shadow: var(--scroll-surface-shadow, 0 12px 34px rgb(18 53 78 / 6%)); }
+.scroll-compact { z-index: 4; flex: 0 0 auto; background: var(--scroll-compact-background, #fff); }
+.scroll-body { min-height: 0; flex: 1 1 auto; overflow: auto; contain: layout paint; overscroll-behavior: contain; overflow-anchor: none; scroll-behavior: smooth; }

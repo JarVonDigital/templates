@@ -1,15 +1,15 @@
 :host { display: block; }
-.table-header { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 8px; margin-bottom: 6px; }
-h1 { margin: 0; color: #132337; font-size: clamp(23px, 2.5vw, 28px); line-height: 1; letter-spacing: -.035em; }
-.search-field { display: flex; width: 100%; min-width: 0; min-height: 34px; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid #d1dce5; border-radius: 6px; background: #f9fbfd; }
+.table-header { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; gap: 2px var(--app-layout-gap); margin-bottom: 6px; padding: 4px; }
+h1 { margin: 0; color: #132337; font-size: var(--app-list-title-size); line-height: 1.1; letter-spacing: -.035em; }
+.search-field { display: flex; grid-column: 2; grid-row: 1; width: 100%; min-width: 0; min-height: var(--app-control-height); align-items: center; gap: 8px; padding: 0 10px; border: 1px solid #d1dce5; border-radius: 6px; background: #f9fbfd; }
 .search-field:focus-within { border-color: #147bc1; box-shadow: 0 0 0 3px rgb(20 123 193 / 12%); }
-.search-field svg { width: 16px; color: #708298; }
-.search-field input { width: 100%; border: 0; outline: 0; background: transparent; color: #25374b; font-size: 12px; }
+.search-field svg { width: var(--app-control-icon-size); height: var(--app-control-icon-size); color: #708298; }
+.search-field input { width: 100%; border: 0; outline: 0; background: transparent; color: #25374b; font-size: var(--app-table-body-size); }
 .search-field input::placeholder { color: #8998aa; }
-.table-header-actions { display: flex; gap: 6px; }
+.table-header-actions { display: flex; grid-column: 3; grid-row: 1; gap: 6px; }
 .menu-anchor { position: relative; }
-.control-button { display: flex; min-height: 34px; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid #d1dce5; border-radius: 6px; background: #fff; color: #23344a; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.control-button svg { width: 16px; }
+.control-button { display: flex; min-height: var(--app-control-height); align-items: center; gap: 6px; padding: 0 9px; border: 1px solid #d1dce5; border-radius: 6px; background: #fff; color: #23344a; font-size: var(--app-table-body-size); font-weight: 600; white-space: nowrap; }
+.control-button svg { width: var(--app-control-icon-size); height: var(--app-control-icon-size); }
 .filter-count { padding: 2px 7px; border-radius: 12px; background: #063f68; color: #fff; font-size: 12px; }
 .floating-panel { position: absolute; z-index: 45; top: calc(100% + 8px); right: 0; border: 1px solid #d1dce5; border-radius: 10px; background: #fff; box-shadow: 0 16px 36px rgb(16 42 66 / 18%); }
 .columns-menu { display: grid; width: 230px; max-height: 440px; overflow: auto; padding: 10px; }
@@ -30,6 +30,14 @@ h1 { margin: 0; color: #132337; font-size: clamp(23px, 2.5vw, 28px); line-height
 .columns-menu input[type='checkbox']:checked + .custom-check { border-color: #063f68; background: #063f68; }
 .columns-menu input[type='checkbox']:checked + .custom-check svg { opacity: 1; }
 .columns-menu input[type='checkbox']:focus-visible + .custom-check { outline: 3px solid rgb(20 123 193 / 35%); outline-offset: 2px; }
-.results-count { color: #71839a; font-size: 12px; white-space: nowrap; }
+.results-count { grid-column: 1; grid-row: 2; align-self: start; color: #71839a; font-size: var(--app-table-body-size); white-space: nowrap; }
 .results-count strong { margin-right: 4px; }
-@media (max-width: 800px) { .table-header { grid-template-columns: 1fr auto; } .table-header .search-field { grid-column: 1 / -1; grid-row: 2; width: 100%; } .table-header-actions > * { flex: 1; } .columns-menu { right: auto; left: 0; } }
+@media (max-width: 800px) {
+  .table-header { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .table-header .search-field { grid-column: 1 / -1; grid-row: 3; width: 100%; }
+  .table-header-actions { grid-column: 1 / -1; grid-row: 4; gap: 8px; }
+  .table-header-actions > * { min-width: 0; flex: 1; }
+  .table-header-actions .control-button { width: 100%; justify-content: center; }
+  .results-count { grid-column: 1; grid-row: 2; justify-self: start; }
+  .columns-menu { right: auto; left: 0; }
+}

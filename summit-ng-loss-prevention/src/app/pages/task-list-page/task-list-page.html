@@ -8,30 +8,26 @@
       <app-bulk-actions [selectedCount]="selected().size" [actions]="bulkActions" (actionSelected)="handleBulkAction($event)" (cleared)="clearSelection()" />
     }
 
-    <app-table-shell [fillHeight]="true">
-      <table>
-        <thead><tr>
-          <th class="select-column"><label><span class="sr-only">Select all tasks on this page</span><input type="checkbox" [checked]="allPageSelected()" [indeterminate]="selected().size > 0 && !allPageSelected()" (change)="togglePage($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck /></span></label></th>
-          @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <th [class.active-sort]="sortKey() === column.key"><button type="button" class="sort-button" (click)="sort(column.key)" [attr.aria-label]="'Sort by ' + column.label" [attr.aria-pressed]="sortKey() === column.key">{{ column.label }}<svg lucideArrowDownAZ [class.descending]="sortKey() === column.key && sortDirection() === 'desc'" aria-hidden="true" /></button></th> } }
-          <th class="actions-column"><span class="sr-only">Actions</span></th>
-        </tr></thead>
+    <app-project-table [columns]="columns()" [visibleColumns]="visibleColumns()" [sortKey]="sortKey()" [sortDirection]="sortDirection()" tableLabel="Task list" minWidth="1080px" [fillHeight]="true" (sortChange)="applyTableSort($event)">
+      <th project-table-select-header class="select-column"><label><span class="sr-only">Select all tasks on this page</span><input type="checkbox" [checked]="allPageSelected()" [indeterminate]="selected().size > 0 && !allPageSelected()" (change)="togglePage($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck /></span></label></th>
+      <th project-table-actions-header class="actions-column"><span class="sr-only">Actions</span></th>
         <tbody>
           @for (task of pageTasks(); track task.id) {
             <tr [class.selected-row]="selected().has(task.id)" [class.warning-row]="task.status === 'Pending'">
               <td class="select-column"><label><span class="sr-only">Select task {{ task.id }}</span><input type="checkbox" [checked]="selected().has(task.id)" (change)="toggleTask(task.id, $any($event.target).checked)" /><span class="custom-check"><svg lucideCheck /></span></label></td>
-              @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [class]="column.cellClass?.(task) ?? ''"><span class="cell-content">{{ column.value(task) }}</span></td> } }
+          @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [attr.data-label]="column.label" [attr.data-column]="column.key" [class]="column.cellClass?.(task) ?? ''"><span class="cell-content">{{ column.value(task) }}</span></td> } }
               <td class="actions-column"><button type="button" class="row-actions" (click)="rowMenu.set(rowMenu() === task.id ? null : task.id)" [attr.aria-expanded]="rowMenu() === task.id" [attr.aria-label]="'Actions for task ' + task.id"><svg lucideMoreVertical /></button>@if (rowMenu() === task.id) { <div class="row-menu floating-panel"><a [routerLink]="['/tasks', task.id]">Open task</a><button type="button" (click)="toggleTask(task.id, true); openBulkAction('reassign')"><svg lucideArrowLeftRight aria-hidden="true" />Reassign</button><button type="button" (click)="toggleTask(task.id, true); openBulkAction('status')"><svg lucidePencil aria-hidden="true" />Change status</button></div> }</td>
             </tr>
           } @empty { <tr><td class="empty-state" [attr.colspan]="visibleColumns().size + 2"><strong>No tasks found</strong><span>Try changing your search or filters.</span></td></tr> }
         </tbody>
-      </table>
-    </app-table-shell>
+    </app-project-table>
     <footer class="pagination"><span>Showing {{ pageStart() }}–{{ pageEnd() }} of {{ filteredTasks().length }}</span><div><button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 1" aria-label="Previous page"><svg lucideChevronLeft /></button>@for (pageNumber of pageNumbers(); track pageNumber) { <button type="button" class="page-number" [class.active]="page() === pageNumber" (click)="goToPage(pageNumber)" [attr.aria-label]="'Page ' + pageNumber" [attr.aria-current]="page() === pageNumber ? 'page' : null">{{ pageNumber }}</button> }<button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()" aria-label="Next page"><svg lucideChevronRight /></button></div></footer>
   </section>
 </main>
 
 @if (filtersOpen()) {
-  <div class="scrim" (click)="filtersOpen.set(false)"></div>
+  <app-task-filter-drawer [draft]="draftFilterValues()" [savedFilters]="savedFilters()" [states]="states" [statuses]="statuses" [consultants]="consultants" [reasons]="reasons" [locations]="locationOptions" (closed)="filtersOpen.set(false)" (applied)="applyDrawerFilters($event)" (reset)="resetDrawerFilters()" (saved)="saveDrawerFilter($event)" (deleted)="deleteDrawerFilter($event)" />
+  <!--
   <aside class="filter-drawer" role="dialog" aria-modal="true" aria-labelledby="filter-title">
     <div class="drawer-header"><div><p class="eyebrow">Refine results</p><h2 id="filter-title">Filter tasks</h2></div><button type="button" class="icon-button" (click)="filtersOpen.set(false)" aria-label="Close filters"><svg lucideX /></button></div>
     <div class="filter-content">
@@ -83,6 +79,7 @@
     </div>
     <div class="drawer-actions"><button type="button" class="secondary-button" (click)="resetFilters()">Reset</button><button type="button" class="primary-button" (click)="applyFilters()">Show results</button></div>
   </aside>
+  -->
 }
 
 @if (bulkAction()) {

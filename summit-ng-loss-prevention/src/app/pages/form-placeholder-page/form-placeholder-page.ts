@@ -4,10 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { PlaceholderPage } from '../../shared/placeholder-page/placeholder-page';
 
 const FORM_TITLES: Readonly<Record<string, string>> = {
-  'lr-and-r': 'LR and R',
-  rse: 'RSE',
-  'service-frequency-change': 'Service Frequency Change',
-  'alert-uw': 'Alert UW',
+  'lr-and-r': 'Loss Runs & Recommendations',
+  rse: 'Risk and safety evaluation',
+  'service-frequency-change': 'Service frequency change',
+  'alert-uw': 'Underwriting alert',
 };
 
 @Component({

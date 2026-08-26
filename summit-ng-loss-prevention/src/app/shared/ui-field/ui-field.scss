@@ -1,6 +1,10 @@
-:host { display: grid; gap: 6px; min-width: 0; }
+:host { display: grid; width: 100%; min-width: 0; gap: 6px; }
 label { color: var(--summit-ink); font-size: 12px; line-height: 1.4; }
-.control { position: relative; }
-input, select { width: 100%; height: 37px; padding: 0 12px; border: 1px solid var(--summit-border-soft); border-radius: 5px; appearance: none; background: #fff; color: var(--summit-ink); font-size: 13px; }
-.has-icon input, .has-icon select { padding-right: 40px; }
-svg { position: absolute; top: 50%; right: 13px; width: 17px; height: 17px; pointer-events: none; transform: translateY(-50%); stroke-width: 1.8; }
+.control { position: relative; width: 100%; min-width: 0; }
+input { width: 100%; height: 37px; padding: 0 12px; border: 1px solid var(--summit-border-soft); border-radius: 5px; background: #fff; color: var(--summit-ink); font-size: 13px; }
+/*
+ * Optimus applies its layout classes to the component host. Setting `display`
+ * here overrides `.p-select-fluid` and `.p-datepicker-fluid` once Angular adds
+ * this component's emulated style attribute, collapsing the label/input area.
+ */
+p-select, p-date-picker { width: 100%; min-width: 0; }

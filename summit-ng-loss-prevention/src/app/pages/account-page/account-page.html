@@ -1,0 +1,132 @@
+<main class="account-page">
+  <section class="account-hero" aria-labelledby="account-title">
+    <div class="account-identity">
+      <span class="identity-icon" aria-hidden="true"><svg lucideBuilding2 /></span>
+      <div>
+        <p class="eyebrow">Policy account</p>
+        <h1 id="account-title">{{ account().name }}</h1>
+        <div class="policy-meta"><a class="policy-link" href="#policy-details">Policy {{ account().policyNumber }}<svg lucideExternalLink aria-hidden="true" /></a><p-badge value="Active" class="policy-status" /></div>
+      </div>
+    </div>
+    <div class="account-facts" aria-label="Policy summary">
+      <div><svg lucideCalendarDays aria-hidden="true" /><span><small>Policy period</small><strong>{{ account().policyPeriod }}</strong></span></div>
+      <div><svg lucideShieldCheck aria-hidden="true" /><span><small>State written</small><strong>{{ account().stateWritten }}</strong></span></div>
+    </div>
+    <div class="account-actions">
+      <button pButton type="button" class="print-button" (click)="print()"><svg lucidePrinter aria-hidden="true" /><span>Print view</span></button>
+      <button pButton type="button" class="applications-button" aria-haspopup="menu" (click)="applicationsMenu.toggle($event)"><svg lucideGrid2X2 aria-hidden="true" /><span>Applications</span></button>
+      <p-menu #applicationsMenu [model]="applications" [popup]="true" appendTo="body" styleClass="applications-menu" ariaLabel="Applications" />
+    </div>
+  </section>
+
+  <p-tabs [value]="activeTab()" (valueChange)="setActiveTab($event)" [scrollable]="true" class="account-tabs">
+    <p-tablist>
+      @for (tab of tabs; track tab.value) { <p-tab [value]="tab.value">{{ tab.label }}</p-tab> }
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="policy">
+        <section class="policy-layout" id="policy-details" aria-label="Policy details">
+          <p-card class="detail-card">
+            <ng-template #title>Policy information</ng-template>
+            <ng-template #subtitle>Core identifiers and policy status</ng-template>
+            <dl class="details-grid">
+              <div><dt>Policy number</dt><dd>{{ account().policyNumber }}</dd></div>
+              <div><dt>Policy period</dt><dd>{{ account().policyPeriod }}</dd></div>
+              <div><dt>State written</dt><dd>{{ account().stateWritten }}</dd></div>
+              <div><dt>Cancellation date</dt><dd>{{ account().cancelDate }}</dd></div>
+              <div><dt>Legal nature</dt><dd>{{ account().legalNature }}</dd></div>
+              <div><dt>FEIN</dt><dd>{{ account().fein }}</dd></div>
+              <div><dt>Risk ID</dt><dd>{{ account().riskId }}</dd></div>
+            </dl>
+          </p-card>
+          <p-card class="detail-card contact-card">
+            <ng-template #title>Locations & contact</ng-template>
+            <ng-template #subtitle>Primary contact information for this policy</ng-template>
+            <div class="location-list">
+              <div class="location-row"><span class="location-icon" aria-hidden="true"><svg lucideMapPin /></span><div><p>Physical address</p><address>@for (line of account().physicalAddress; track line) { <span>{{ line }}</span> }</address></div></div>
+              <div class="location-row"><span class="location-icon" aria-hidden="true"><svg lucideMapPin /></span><div><p>Mailing address</p><address>@for (line of account().mailingAddress; track line) { <span>{{ line }}</span> }</address></div></div>
+              <div class="phone-row"><svg lucidePhone aria-hidden="true" /><div><p>Phone</p><a [href]="'tel:' + account().phoneNumber">{{ account().phoneNumber }}</a></div><div><p>Fax</p><span>{{ account().faxNumber }}</span></div></div>
+            </div>
+          </p-card>
+        </section>
+      </p-tabpanel>
+
+      <p-tabpanel value="agency">
+        <section class="tab-layout agency-layout" aria-label="Agency details">
+          <p-card class="detail-card agency-card">
+            <ng-template #title>Servicing agency</ng-template>
+            <ng-template #subtitle>Primary agency and representative for this policy</ng-template>
+            <dl class="details-grid agency-details">
+              <div><dt>Agency name</dt><dd>{{ agency().name }}</dd></div>
+              <div><dt>Agency number</dt><dd>{{ agency().number }}</dd></div>
+              <div><dt>Agent name</dt><dd>{{ agency().contactName }}</dd></div>
+              <div><dt>Agent number</dt><dd>{{ agency().contactNumber }}</dd></div>
+            </dl>
+          </p-card>
+          <p-card class="detail-card agency-contact-card">
+            <ng-template #title>Agency contact</ng-template>
+            <ng-template #subtitle>Contact and correspondence details</ng-template>
+            <div class="location-list">
+              <div class="location-row"><span class="location-icon" aria-hidden="true"><svg lucideMapPin /></span><div><p>Physical address</p><address>@for (line of agency().physicalAddress; track line) { <span>{{ line }}</span> }</address></div></div>
+              <div class="location-row"><span class="location-icon" aria-hidden="true"><svg lucideMapPin /></span><div><p>Mailing address</p><address>@for (line of agency().mailingAddress; track line) { <span>{{ line }}</span> }</address></div></div>
+              <div class="contact-methods"><div><svg lucidePhone aria-hidden="true" /><p>Phone</p><a [href]="'tel:' + agency().phoneNumber">{{ agency().phoneNumber }}</a></div><div><svg lucideMail aria-hidden="true" /><p>Email</p><a [href]="'mailto:' + agency().email">{{ agency().email }}</a></div></div>
+            </div>
+          </p-card>
+        </section>
+      </p-tabpanel>
+
+      <p-tabpanel value="premium">
+        <section class="tab-layout premium-layout" aria-label="Premium details">
+          <div class="premium-summary" aria-label="Premium summary">
+            <div class="premium-total"><span aria-hidden="true"><svg lucideCircleDollarSign /></span><div><p>Total premium</p><strong>{{ premium().total }}</strong></div></div>
+            <div><p>Payment schedule</p><strong>{{ premium().paymentSchedule }}</strong></div>
+            <div><p>Plan</p><strong>{{ premium().plan }}</strong></div>
+          </div>
+          <p-card class="detail-card premium-card">
+            <ng-template #title>Premium & coverage</ng-template>
+            <ng-template #subtitle>Policy period {{ account().policyPeriod }}</ng-template>
+            <div class="premium-content">
+              <div><p class="field-label">Additional items</p><ul class="coverage-list">@for (item of premium().additionalItems; track item) { <li><svg lucideShieldCheck aria-hidden="true" />{{ item }}</li> }</ul></div>
+              <div class="experience-modification"><p class="field-label">Experience modification</p><p-table [value]="[premium()]" ariaLabel="Experience modification"><ng-template #header><tr><th scope="col">Rate</th><th scope="col">Effective date</th></tr></ng-template><ng-template #body let-premium><tr><td>{{ premium.experienceModificationRate }}</td><td>{{ premium.experienceModificationEffectiveDate }}</td></tr></ng-template></p-table></div>
+            </div>
+          </p-card>
+        </section>
+      </p-tabpanel>
+
+      <p-tabpanel value="workplaces">
+        <section class="tab-layout workplaces-layout" aria-label="Covered workplaces">
+          <div class="tab-heading"><div><h2>Covered workplaces</h2><p>Locations included on this policy</p></div><p-badge [value]="workplaces().length + ' location' + (workplaces().length === 1 ? '' : 's')" class="location-count" /></div>
+          <p-card class="detail-card workplace-card">
+            <p-table [value]="workplaces()" ariaLabel="Covered workplaces"><ng-template #header><tr><th scope="col">Name / DBA / address</th><th scope="col">Effective date</th><th scope="col">Cancellation date</th><th scope="col">FEIN</th></tr></ng-template><ng-template #body let-workplace><tr><td><strong>{{ workplace.name }}</strong><address>@for (line of workplace.address; track line) { <span>{{ line }}</span> }</address></td><td>{{ workplace.effectiveDate }}</td><td>{{ workplace.cancellationDate }}</td><td>{{ workplace.fein }}</td></tr></ng-template></p-table>
+          </p-card>
+        </section>
+      </p-tabpanel>
+      <p-tabpanel value="payroll">
+        <section class="tab-layout payroll-layout" aria-label="Payroll classifications">
+          <div class="tab-heading"><div><h2>Payroll classifications</h2><p>Estimated and audited payroll by work classification</p></div><p-badge [value]="payroll().length + ' classes'" class="location-count" /></div>
+          <p-card class="detail-card table-card payroll-card">
+            <p-table [value]="payroll()" ariaLabel="Payroll classifications"><ng-template #header><tr><th scope="col">Work code</th><th scope="col">Classification</th><th scope="col">Rate</th><th scope="col">Start</th><th scope="col">Stop</th><th scope="col">Estimated</th><th scope="col">Audited</th></tr></ng-template><ng-template #body let-classification><tr><td>{{ classification.workCode }}</td><td>{{ classification.classification }}</td><td>{{ classification.rate }}</td><td>{{ classification.startDate }}</td><td>{{ classification.stopDate }}</td><td>{{ classification.estimatedPayroll }}</td><td>{{ classification.auditedPayroll }}</td></tr></ng-template></p-table>
+          </p-card>
+        </section>
+      </p-tabpanel>
+      <p-tabpanel value="contacts">
+        <section class="tab-layout contacts-layout" aria-label="Contacts and officers">
+          <div class="tab-heading"><div><h2>Contacts & officers</h2><p>People and access associated with this policy</p></div></div>
+          <div class="contacts-grid">
+            <p-card class="detail-card table-card"><ng-template #title>Officers</ng-template><ng-template #subtitle>Registered officers for {{ account().name }}</ng-template><p-table [value]="officers()" ariaLabel="Officers"><ng-template #header><tr><th scope="col">Officer name</th><th scope="col">Title</th><th scope="col">Start</th><th scope="col">Stop</th></tr></ng-template><ng-template #body let-officer><tr><td>{{ officer.name }}</td><td>{{ officer.title }}</td><td>{{ officer.startDate }}</td><td>{{ officer.stopDate }}</td></tr></ng-template></p-table></p-card>
+            <p-card class="detail-card table-card"><ng-template #title>Ownership</ng-template><ng-template #subtitle>Ownership interests on file</ng-template><p-table [value]="owners()" ariaLabel="Ownership"><ng-template #header><tr><th scope="col">Owner name</th><th scope="col">Title</th><th scope="col">Start</th><th scope="col">Ownership</th></tr></ng-template><ng-template #body let-owner><tr><td>{{ owner.name }}</td><td>{{ owner.title }}</td><td>{{ owner.startDate }}</td><td>{{ owner.ownership }}</td></tr></ng-template></p-table></p-card>
+          </div>
+          <p-card class="detail-card table-card"><ng-template #title>Policy contacts</ng-template><ng-template #subtitle>Contact roles associated with this policy</ng-template><p-table [value]="contacts()" ariaLabel="Policy contacts"><ng-template #header><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Contact type</th><th scope="col">Start</th><th scope="col">Stop</th></tr></ng-template><ng-template #body let-contact><tr><td>{{ contact.name }}</td><td><a class="table-link" [href]="'mailto:' + contact.email">{{ contact.email }}</a></td><td>{{ contact.contactType }}</td><td>{{ contact.startDate }}</td><td>{{ contact.stopDate }}</td></tr></ng-template></p-table></p-card>
+          <p-card class="detail-card table-card"><ng-template #title>Web users</ng-template><ng-template #subtitle>Users with policy account access</ng-template><p-table [value]="webUsers()" ariaLabel="Web users"><ng-template #header><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Cell phone</th></tr></ng-template><ng-template #body let-user><tr><td>{{ user.name }}</td><td><a class="table-link" [href]="'mailto:' + user.email">{{ user.email }}</a></td><td><a class="table-link" [href]="'tel:' + user.cellPhone">{{ user.cellPhone }}</a></td></tr></ng-template></p-table></p-card>
+        </section>
+      </p-tabpanel>
+      <p-tabpanel value="inclusions">
+        <section class="tab-layout inclusions-layout" aria-label="Inclusions and exclusions">
+          <div class="tab-heading"><div><h2>Inclusions & exclusions</h2><p>Officer coverage election for this policy</p></div><p-badge value="{{ inclusion().officers.length }} officer" class="location-count" /></div>
+          <p-card class="detail-card inclusion-card"><div class="entity-summary"><div><p class="field-label">Entity name</p><strong>{{ inclusion().entityName }}</strong></div><div><p class="field-label">FEIN</p><strong>{{ inclusion().fein }}</strong></div></div><p-table [value]="inclusion().officers" ariaLabel="Officer inclusion status"><ng-template #header><tr><th scope="col">Officer name</th><th scope="col">Title</th><th scope="col">State</th><th scope="col">Start</th><th scope="col">Stop</th><th scope="col">Coverage status</th></tr></ng-template><ng-template #body let-officer><tr><td>{{ officer.name }}</td><td>{{ officer.title }}</td><td>{{ officer.state }}</td><td>{{ officer.startDate }}</td><td>{{ officer.stopDate }}</td><td><p-badge [value]="officer.status" class="policy-status" /></td></tr></ng-template></p-table></p-card>
+        </section>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</main>

@@ -1,7 +1,8 @@
 import { Component, input, model, output, signal } from '@angular/core';
 import { LucideCheck, LucideChevronDown, LucideColumns3, LucideFilter, LucideGripVertical, LucideSearch, LucideX } from '@lucide/angular';
+import { ProjectTableColumn } from '../project-table/project-table';
 
-export interface TableColumn { readonly key: string; readonly label: string; }
+export type TableColumn = ProjectTableColumn;
 
 @Component({
   selector: 'app-table-header',

@@ -1,15 +1,111 @@
 :root {
-  --summit-navy: #064f7f;
-  --summit-blue: #147bc1;
-  --summit-teal: #078474;
-  --summit-mint: #5bc7b7;
-  --summit-ink: #202c40;
-  --summit-muted: #6f7f94;
-  --summit-border: #9dafc6;
-  --summit-border-soft: #ccd7e4;
-  --summit-canvas: #fbfbfc;
+  --brand-summit-blue: #004677;
+  --brand-summit-gray: #7c878e;
+  --brand-accent-teal: #06786a;
+  --brand-accent-blue: #3b8bc4;
+  --brand-deep-blue: #003559;
+  --brand-white: #fff;
+  --brand-black: #000;
+  --gray-0: #fff;
+  --gray-50: #f7f9fa;
+  --gray-100: #eef2f4;
+  --gray-200: #d9e1e5;
+  --gray-300: #c2cdd2;
+  --gray-500: #6b7880;
+  --gray-700: #34434d;
+  --gray-900: #17232b;
+  --color-bg: var(--gray-50);
+  --color-surface: var(--gray-0);
+  --color-surface-subtle: var(--gray-100);
+  --color-text: var(--gray-900);
+  --color-text-secondary: var(--gray-700);
+  --color-text-muted: var(--gray-500);
+  --color-text-on-brand: var(--brand-white);
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+  --color-brand: var(--brand-summit-blue);
+  --color-brand-hover: var(--brand-deep-blue);
+  --color-brand-subtle: #e6f0f6;
+  --color-link: var(--brand-summit-blue);
+  --color-link-hover: var(--brand-deep-blue);
+  --color-info: var(--brand-accent-blue);
+  --color-success: var(--brand-accent-teal);
+  --color-focus: #146da3;
+  --font-display: "Verb", Arial, sans-serif;
+  --font-body: "Verb", Arial, sans-serif;
+  --font-accent: "Merriweather", Georgia, serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+
+  /* Compatibility aliases for existing component styles. */
+  --summit-navy: var(--color-brand);
+  --summit-blue: var(--color-brand);
+  --summit-teal: var(--color-success);
+  --summit-mint: #70c7b6;
+  --summit-ink: var(--color-text);
+  --summit-muted: var(--color-text-muted);
+  --summit-border: var(--color-border-strong);
+  --summit-border-soft: var(--color-border);
+  --summit-canvas: var(--color-bg);
+  --app-page-inline: 16px;
+  --app-page-inline-mobile: 14px;
+  --app-page-block-start: 7px;
+  --app-page-block-end: 12px;
+  --app-layout-gap: 8px;
+  --app-control-height: 44px;
+  --app-control-icon-size: 16px;
+  --app-icon-button-size: 44px;
+  --app-table-header-height: 44px;
+  --app-table-cell-padding: 12px 13px;
+  --app-table-body-size: 12px;
+  --app-table-meta-size: 11px;
+  --app-list-title-size: 28px;
+  --app-detail-title-size: 38px;
+  --app-section-title-size: 17px;
+  --app-page-subtitle-size: 13px;
+  --app-metric-value-size: 20px;
+  --app-pagination-height: 52px;
   color-scheme: light;
-  font-family: "Verb", Inter, "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-body);
+}
+
+@font-face {
+  font-family: "Verb";
+  src: url('/fonts/VerbLight.otf') format('opentype');
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Verb";
+  src: url('/fonts/VerbRegular.otf') format('opentype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Verb";
+  src: url('/fonts/VerbMedium.otf') format('opentype');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Verb";
+  src: url('/fonts/VerbBold.otf') format('opentype');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Verb";
+  src: url('/fonts/VerbUltra.otf') format('opentype');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
 }
 
 * { box-sizing: border-box; }
@@ -19,10 +115,26 @@ body { background: var(--summit-canvas); color: var(--summit-ink); }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
 button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible {
-  outline: 3px solid rgb(20 123 193 / 35%);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: var(--color-brand);
+  color: var(--color-text-on-brand);
+  transform: translateY(-150%);
+}
+.skip-link:focus { transform: translateY(0); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
 
 .filter-drawer {
   .filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }

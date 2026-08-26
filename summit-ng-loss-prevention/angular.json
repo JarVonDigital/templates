@@ -27,6 +27,31 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "VerbLight.otf",
+                "input": "Verb Font Collection",
+                "output": "fonts"
+              },
+              {
+                "glob": "VerbRegular.otf",
+                "input": "Verb Font Collection",
+                "output": "fonts"
+              },
+              {
+                "glob": "VerbMedium.otf",
+                "input": "Verb Font Collection",
+                "output": "fonts"
+              },
+              {
+                "glob": "VerbBold.otf",
+                "input": "Verb Font Collection",
+                "output": "fonts"
+              },
+              {
+                "glob": "VerbUltra.otf",
+                "input": "Verb Font Collection",
+                "output": "fonts"
               }
             ],
             "styles": [

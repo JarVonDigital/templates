@@ -1,10 +1,38 @@
 .content { display: grid; width: 100%; gap: 26px; padding: 16px; }
 .task-details { padding: 17px 21px 27px; border: 1px solid var(--summit-border); border-radius: 6px; background: #fff; h2 { margin: 0 0 17px; color: #111; font-size: 17px; font-weight: 400; } }
 .details-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 14px; }
-.visits-grid { display: grid; grid-template-columns: repeat(2, minmax(300px, 1fr)); gap: 10px; align-items: start; max-width: 786px; }
+.photos-panel, .documents-panel { overflow: hidden; padding: 17px 21px 15px; border: 1px solid var(--summit-border); border-radius: 6px; background: #fff; }
+.photos-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+.section-kicker { margin: 0 0 2px; color: var(--summit-teal); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.photos-heading h2 { margin: 0; color: #111; font-size: 17px; font-weight: 400; }
+.photo-count { color: var(--summit-muted); font-size: 12px; }
+.gallery-actions { display: flex; align-items: center; gap: 10px; }
+.visit-filter { display: inline-flex; align-items: center; gap: 5px; color: var(--summit-muted); font-size: 11px; font-weight: 600; }
+.visit-filter select { max-width: 138px; min-height: 30px; padding: 0 24px 0 8px; border: 1px solid #bfd0db; border-radius: 7px; background: #f4f9fb; color: var(--summit-blue); font-size: 11px; font-weight: 600; }
+.visit-filter select:focus { border-color: var(--summit-blue); outline: 3px solid rgb(20 109 163 / 18%); }
+.gallery-add { display: grid; width: 30px; height: 30px; padding: 0; border: 1px solid #bfd0db; border-radius: 8px; background: #f4f9fb; color: var(--summit-blue); place-items: center; }
+.gallery-add:hover { border-color: var(--summit-blue); background: #e8f4fc; }
+.gallery-add svg { width: 17px; }
+.photo-strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 5px; scrollbar-color: #bdd0da transparent; }
+.photo-card { display: grid; width: 240px; min-width: 240px; margin: 0; overflow: hidden; border: 1px solid #d7e2e8; border-radius: 8px; background: #fbfcfd; }
+.photo-thumbnail { position: relative; height: 132px; overflow: hidden; background: #e9f0f3; }
+.photo-thumbnail img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.photo-mark { position: absolute; top: 8px; right: 8px; display: grid; width: 22px; height: 22px; border: 2px solid #fff; border-radius: 50%; background: var(--summit-teal); color: #fff; font-size: 12px; font-weight: 700; place-items: center; }
+.photo-card figcaption { display: grid; gap: 2px; padding: 9px 10px 10px; }.photo-card strong { overflow: hidden; color: #183242; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }.photo-card span { overflow: hidden; color: #6c8190; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }.photo-card small { margin-top: 3px; color: #9aaab4; font-size: 10px; }
+.document-strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 5px; scrollbar-color: #bdd0da transparent; }
+.document-card { display: flex; width: 270px; min-width: 270px; align-items: center; gap: 12px; padding: 12px; border: 1px solid #d7e2e8; border-radius: 8px; background: #fbfcfd; }
+.document-icon { position: relative; display: grid; width: 52px; height: 58px; flex: 0 0 auto; align-content: center; justify-items: center; border: 1px solid #c8dce8; border-radius: 7px; background: #edf5f9; color: var(--summit-blue); }
+.document-icon svg { width: 25px; height: 25px; }
+.document-icon span { color: var(--summit-blue); font-size: 8px; font-weight: 800; letter-spacing: .05em; }
+.document-details { display: grid; min-width: 0; gap: 3px; }
+.document-details strong, .document-details span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.document-details strong { color: #183242; font-size: 12px; }
+.document-details span { color: #6c8190; font-size: 11px; }
+.document-details small { margin-top: 3px; color: #9aaab4; font-size: 10px; }
+.visits-section { padding: 20px; border: 1px solid #cadce6; border-radius: 12px; background: #edf5fa; }.visits-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 0 2px 16px; }.visits-heading h2 { margin: 0; color: #17364d; font-size: 19px; font-weight: 650; }.visits-heading > p { max-width: 280px; margin: 0; color: #587487; font-size: 12px; line-height: 1.4; text-align: right; }.visits-grid { display: grid; grid-template-columns: repeat(2, minmax(300px, 1fr)); gap: 14px; align-items: start; }
 .action-bar { position: sticky; bottom: 0; z-index: 20; display: flex; min-height: 59px; align-items: center; justify-content: flex-end; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--summit-border-soft); background: #fff; }
 .action-bar button.p-button { border: 0; box-shadow: none; }
 .cancel-button.p-button { background: transparent; color: var(--summit-muted); }
 .save-button.p-button { display: flex; min-height: 38px; align-items: center; gap: 8px; padding: 0 14px; border-radius: 6px; background: var(--summit-mint); color: #092b31; svg { width: 18px; } }
-@media (max-width: 1100px) { .details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .visits-grid { grid-template-columns: 1fr; max-width: none; } }
-@media (max-width: 760px) { .content { padding: 18px 12px; } .details-grid { grid-template-columns: 1fr; } .visits-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1100px) { .details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .visits-grid { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .content { padding: 18px 12px; } .details-grid { grid-template-columns: 1fr; } .visits-section { padding: 15px 12px; }.visits-heading { align-items: start; flex-direction: column; }.visits-heading > p { max-width: none; text-align: left; }.visits-grid { grid-template-columns: minmax(0, 1fr); } .photos-panel, .documents-panel { padding-inline: 14px; } .photos-heading { align-items: end; flex-direction: row; } .gallery-actions { width: auto; justify-content: initial; } .photo-card { width: 220px; min-width: 220px; } .photo-thumbnail { height: 120px; } }

@@ -1,0 +1,78 @@
+[
+  {
+    "claimKey": {
+      "fund": "0830",
+      "member": 1,
+      "subCode": 0,
+      "fundYear": 125,
+      "claimNumber": 389535,
+      "sequence": "1",
+      "monthEndPeriod": 0
+    },
+    "policyPeriod": {
+      "start": "04/01/2025",
+      "end": "02/02/2026"
+    },
+    "iwName": "SAUNDERS, RAN R",
+    "status": "Closed",
+    "dateOfInjury": "01/15/2026",
+    "totalIncurred": 338.58
+  },
+  {
+    "claimKey": {
+      "fund": "0830",
+      "member": 1,
+      "subCode": 0,
+      "fundYear": 125,
+      "claimNumber": 380973,
+      "sequence": "1",
+      "monthEndPeriod": 0
+    },
+    "policyPeriod": {
+      "start": "04/01/2025",
+      "end": "02/02/2026"
+    },
+    "iwName": "BURGESS, WILLIAM A",
+    "status": "Open",
+    "dateOfInjury": "09/16/2025",
+    "totalIncurred": 72056.62
+  },
+  {
+    "claimKey": {
+      "fund": "0830",
+      "member": 1,
+      "subCode": 0,
+      "fundYear": 125,
+      "claimNumber": 369713,
+      "sequence": "1",
+      "monthEndPeriod": 0
+    },
+    "policyPeriod": {
+      "start": "04/01/2025",
+      "end": "02/02/2026"
+    },
+    "iwName": "GARCIA, BETTY J",
+    "status": "Closed",
+    "dateOfInjury": "06/17/2025",
+    "totalIncurred": 3005.54
+  },
+  {
+    "claimKey": {
+      "fund": "0830",
+      "member": 1,
+      "subCode": 0,
+      "fundYear": 125,
+      "claimNumber": 365752,
+      "sequence": "1",
+      "monthEndPeriod": 0
+    },
+    "policyPeriod": {
+      "start": "04/01/2025",
+      "end": "02/02/2026"
+    },
+    "iwName": "CLERICO, JOHN G",
+    "status": "Closed",
+    "dateOfInjury": "05/06/2025",
+    "totalIncurred": 516.8
+  }
+]

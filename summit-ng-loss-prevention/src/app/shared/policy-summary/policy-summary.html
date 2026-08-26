@@ -1,26 +1,45 @@
 <section class="summary-card" aria-labelledby="account-name">
   <div class="account-block">
-    <svg lucideBuilding2 aria-hidden="true" />
+    <span class="account-icon" aria-hidden="true"><svg lucideBuilding2 /></span>
     <div>
+      <p class="account-kicker">Policy account</p>
       <h1 id="account-name"><a href="#account">Berkun-Air, Inc.</a></h1>
-      <a href="#policy">0196-63476</a>
-      <p>Rule Name: Rule Name 1<br />Requested By: Administrator<br />Created By: Summit<br />LP Service Requested For: Summit<br />UW for Policy: <a href="#underwriter">Sonya Burgess</a></p>
+      <a class="policy-number" href="#policy">0196-63476</a>
+      <div class="account-details">
+        <span><strong>Rule</strong>Rule Name 1</span>
+        <span><strong>Requested by</strong>Administrator</span>
+        <span><strong>Created by</strong>Summit</span>
+        <span><strong>LP service for</strong>Summit</span>
+        <span><strong>Underwriter</strong><a href="#underwriter">Sonya Burgess</a></span>
+      </div>
     </div>
   </div>
-  <dl><div><dt>Original Due Date</dt><dd>08/12/2026</dd></div><div><dt>Completed Due Date</dt><dd>08/12/2026</dd></div><div><dt>Consultant Assigned to Policy</dt><dd>Robert Hollins</dd></div></dl>
-  <dl><div><dt>Serviceable Premium when Created</dt><dd>$1,234,234</dd></div><div><dt>Completed By</dt><dd>Robert Hollins</dd></div></dl>
-  <dl class="last-column"><div><dt>Current Premium</dt><dd>$1,234,234</dd></div><div><dd><button type="button" class="contacts-link" (click)="openContacts()">LP Contacts ({{ contacts().length }})</button></dd></div></dl>
+  <div class="task-facts" aria-label="Task summary">
+    <dl><div><dt>Original due date</dt><dd>08/12/2026</dd></div><div><dt>Completed due date</dt><dd>08/12/2026</dd></div><div><dt>Consultant assigned to policy</dt><dd>Robert Hollins</dd></div></dl>
+    <dl><div><dt>Premium when created</dt><dd>$1,234,234</dd></div><div><dt>Completed by</dt><dd>Robert Hollins</dd></div><div><dt>Current premium</dt><dd>$1,234,234</dd></div></dl>
+  </div>
 </section>
 
 <dialog #contactsDialog class="contacts-dialog" aria-labelledby="contacts-title">
   <form method="dialog" (submit)="$event.preventDefault(); saveContact()">
     <header class="dialog-header">
       <div>
-        <p class="eyebrow">Policy contacts</p>
         <h2 id="contacts-title">Loss prevention contacts</h2>
         <p class="dialog-description">Keep contact details current and choose how each person prefers to be reached.</p>
+        <p-tabs [value]="activeContactTab()" (valueChange)="switchContactTab($event)" class="contact-tabs">
+          <p-tablist aria-label="Contact directory">
+            @for (tab of contactTabs; track tab.id) { <p-tab [value]="tab.id">{{ tab.label }}</p-tab> }
+          </p-tablist>
+        </p-tabs>
       </div>
-      <button type="button" class="icon-button" aria-label="Close contacts dialog" (click)="closeContacts()"><svg lucideX aria-hidden="true" /></button>
+      <div class="header-actions">
+        <label class="contact-search header-search">
+          <span class="sr-only">Search {{ activeContactTab() === 'loss-prevention' ? 'loss prevention contacts' : activeContactTab() === 'policy' ? 'policy contacts' : 'locations' }}</span>
+          <svg lucideSearch aria-hidden="true" />
+          <input pInputText type="search" placeholder="Search" autocomplete="off" [value]="searchQuery()" (input)="updateSearch($event)" />
+        </label>
+        <button pButton type="button" class="icon-button" aria-label="Close contacts dialog" (click)="closeContacts()"><svg lucideX aria-hidden="true" /></button>
+      </div>
     </header>
 
     <p class="status-message sr-only" aria-live="polite">{{ statusMessage() }}</p>
@@ -28,22 +47,17 @@
       <section class="contact-list" aria-labelledby="contact-list-title">
         <div class="list-heading">
           <div>
-            <h3 id="contact-list-title">Contacts</h3>
-            <span>{{ contacts().length }} {{ contacts().length === 1 ? 'person' : 'people' }}</span>
+            <h3 id="contact-list-title">{{ activeContactTab() === 'loss-prevention' ? (isSelectingContact() ? 'Select a contact' : 'LP contacts') : activeContactTab() === 'policy' ? 'Policy contacts' : 'Locations' }}</h3>
+            <span>{{ activeContactTab() === 'loss-prevention' ? contacts().length : filteredDirectoryItems().length }} {{ activeContactTab() === 'locations' ? 'locations' : 'people' }}</span>
           </div>
-          <button type="button" class="add-contact" (click)="addContact()"><svg lucideCirclePlus aria-hidden="true" />Add contact</button>
+          @if (!isSelectingContact() && activeContactTab() === 'loss-prevention') { <button pButton type="button" class="add-contact" aria-label="Add loss prevention contact" title="Add contact" (click)="addContact()"><svg lucideCirclePlus aria-hidden="true" /></button> }
         </div>
 
-        <label class="contact-search">
-          <span class="sr-only">Search contacts</span>
-          <svg lucideSearch aria-hidden="true" />
-          <input type="search" placeholder="Search contacts" autocomplete="off" [value]="searchQuery()" (input)="updateSearch($event)" />
-        </label>
-
         <div class="contact-cards">
+          @if (activeContactTab() === 'loss-prevention') {
           @for (contact of filteredContacts(); track contact.id) {
             <article class="contact-card" [class.is-selected]="draft().id === contact.id && mode() !== 'idle'">
-              <button type="button" class="card-select" [attr.aria-label]="'Edit ' + contact.firstName + ' ' + contact.lastName" (click)="editContact(contact)">
+              <button pButton type="button" class="card-select" [attr.aria-label]="(isSelectingContact() ? 'Select ' : 'Edit ') + contact.firstName + ' ' + contact.lastName" (click)="chooseOrEditContact(contact)">
                 <span class="avatar" aria-hidden="true">{{ contact.firstName.charAt(0) }}{{ contact.lastName.charAt(0) }}</span>
                 <span class="card-content">
                   <span class="contact-name">{{ contact.firstName }} {{ contact.lastName }}</span>
@@ -54,7 +68,7 @@
               <div class="card-details">
                 @if (contact.office) { <span class="phone-detail"><svg lucidePhone aria-hidden="true" /><span><small>Office</small>{{ contact.office }}</span></span> }
                 @if (contact.cell) { <span class="phone-detail"><svg lucidePhone aria-hidden="true" /><span><small>Cell</small>{{ contact.cell }}</span></span> }
-                @if (contact.email) { <a class="email-action" [href]="'mailto:' + contact.email" [attr.aria-label]="'Email ' + contact.firstName + ' ' + contact.lastName"><svg lucideMail aria-hidden="true" />Email</a> }
+                @if (contact.email) { <a class="email-action" [href]="'mailto:' + contact.email" [attr.aria-label]="'Email ' + contact.firstName + ' ' + contact.lastName"><svg lucideMail aria-hidden="true" />{{ contact.email }}</a> }
               </div>
             </article>
           } @empty {
@@ -63,16 +77,34 @@
               @else { <p>No contacts yet</p><span>Add the first person for this policy.</span> }
             </div>
           }
+          } @else {
+            @for (item of filteredDirectoryItems(); track item.id) {
+              <article class="directory-card">
+                <span class="avatar directory-avatar" aria-hidden="true">{{ item.title.charAt(0) }}</span>
+                <div><strong>{{ item.title }}</strong><span>{{ item.meta }}</span></div>
+                @if (item.phone) { <a [href]="'tel:' + item.phone">{{ item.phone }}</a> }
+                @if (item.email) { <a [href]="'mailto:' + item.email">{{ item.email }}</a> }
+              </article>
+            } @empty {
+              <div class="empty-list"><p>No matches</p><span>Try a different search.</span></div>
+            }
+          }
         </div>
       </section>
 
-      <section class="contact-editor" aria-live="polite">
-        @if (mode() === 'idle') {
+      @if (!isSelectingContact()) { <section class="contact-editor" aria-live="polite">
+        @if (activeContactTab() !== 'loss-prevention') {
+          <div class="editor-empty animate-in">
+            <span class="empty-icon"><svg lucidePencil aria-hidden="true" /></span>
+            <h3>{{ activeContactTab() === 'policy' ? 'Policy contact directory' : 'Policy locations' }}</h3>
+            <p>{{ activeContactTab() === 'policy' ? 'View the people connected to this policy and their preferred contact details.' : 'View the locations associated with this policy.' }}</p>
+          </div>
+        } @else if (mode() === 'idle') {
           <div class="editor-empty animate-in">
             <span class="empty-icon"><svg lucidePencil aria-hidden="true" /></span>
             <h3>Choose a contact to edit</h3>
             <p>Select a card to view and update its details, or add a new contact.</p>
-            <button type="button" class="secondary-add" (click)="addContact()"><svg lucideCirclePlus aria-hidden="true" />Add a contact</button>
+            <button pButton type="button" class="secondary-add" (click)="addContact()"><svg lucideCirclePlus aria-hidden="true" />Add a contact</button>
           </div>
         } @else if (mode() === 'delete') {
           <div class="delete-confirmation animate-in">
@@ -81,7 +113,7 @@
             <h3 #editorHeading tabindex="-1">Remove {{ draft().firstName }} {{ draft().lastName }}?</h3>
             <p>This person will be removed from the policy’s loss prevention contacts. This action cannot be undone.</p>
             <div class="editor-actions confirm-actions">
-              <button type="button" class="cancel-button" (click)="cancelAction()">Cancel</button>
+              <button pButton type="button" class="cancel-button" (click)="cancelAction()">Cancel</button>
               <button pButton type="button" class="delete-button" (click)="deleteContact()"><svg lucideTrash2 aria-hidden="true" />Delete contact</button>
             </div>
           </div>
@@ -93,27 +125,27 @@
                 <h3 #editorHeading tabindex="-1">{{ mode() === 'create' ? 'Add contact details' : draft().firstName + ' ' + draft().lastName }}</h3>
               </div>
               @if (mode() === 'edit') {
-                <button type="button" class="icon-edit" aria-label="Delete this contact" (click)="requestDelete()"><svg lucideTrash2 aria-hidden="true" /></button>
+                <button pButton type="button" class="icon-edit" aria-label="Delete this contact" (click)="requestDelete()"><svg lucideTrash2 aria-hidden="true" /></button>
               }
             </div>
 
             <div class="contact-fields">
-              <label><span class="field-label">First name <span aria-hidden="true">*</span></span><input autocomplete="given-name" required [value]="draft().firstName" (input)="updateDraft('firstName', $event)" /></label>
-              <label>Last name<input autocomplete="family-name" [value]="draft().lastName" (input)="updateDraft('lastName', $event)" /></label>
-              <label class="full-field">Email<input autocomplete="email" inputmode="email" type="email" [value]="draft().email" (input)="updateDraft('email', $event)" /></label>
-              <label>Office phone<input autocomplete="tel" inputmode="tel" [value]="draft().office" (input)="updateDraft('office', $event)" /></label>
-              <label>Cell phone<input autocomplete="tel" inputmode="tel" [value]="draft().cell" (input)="updateDraft('cell', $event)" /></label>
-              <label class="full-field">Preferred contact method<select [value]="draft().method" (change)="updateDraft('method', $event)"><option>Email</option><option>Office</option><option>Cell</option></select></label>
-              <label class="full-field">Notes <span class="optional">Optional</span><textarea rows="4" [value]="draft().notes" (input)="updateDraft('notes', $event)"></textarea></label>
+              <label><span class="field-label">First name <span aria-hidden="true">*</span></span><input pInputText autocomplete="given-name" required [value]="draft().firstName" (input)="updateDraft('firstName', $event)" /></label>
+              <label>Last name<input pInputText autocomplete="family-name" [value]="draft().lastName" (input)="updateDraft('lastName', $event)" /></label>
+              <label class="full-field">Email<input pInputText autocomplete="email" inputmode="email" type="email" [value]="draft().email" (input)="updateDraft('email', $event)" /></label>
+              <label>Office phone<input pInputText autocomplete="tel" inputmode="tel" [value]="draft().office" (input)="updateDraft('office', $event)" /></label>
+              <label>Cell phone<input pInputText autocomplete="tel" inputmode="tel" [value]="draft().cell" (input)="updateDraft('cell', $event)" /></label>
+              <label class="full-field">Preferred contact method<p-select [options]="['Email', 'Office', 'Cell']" [ngModel]="draft().method" (onChange)="updateMethod($event.value)" /></label>
+              <label class="full-field">Notes<textarea rows="4" [value]="draft().notes" (input)="updateDraft('notes', $event)"></textarea></label>
             </div>
 
             <div class="editor-actions">
-              <button type="button" class="cancel-button" (click)="cancelAction()">Cancel</button>
+              <button pButton type="button" class="cancel-button" (click)="cancelAction()">Cancel</button>
               <button pButton type="submit" class="save-button"><svg lucideSave aria-hidden="true" />{{ mode() === 'create' ? 'Add contact' : 'Save changes' }}</button>
             </div>
           </div>
         }
-      </section>
+      </section> }
     </div>
   </form>
 </dialog>

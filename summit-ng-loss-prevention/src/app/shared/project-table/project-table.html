@@ -1,0 +1,23 @@
+<div class="project-table-scroll" tabindex="0">
+  <table [style.min-width]="minWidth()" [attr.aria-label]="tableLabel()">
+    <caption class="sr-only">{{ tableLabel() }}</caption>
+    <thead>
+      <tr>
+        <ng-content select="[project-table-select-header]" />
+        @for (column of displayColumns(); track column.key) {
+          <th scope="col" [class]="'column-' + column.key" [attr.aria-sort]="ariaSort(column.key)">
+            @if (column.sortable !== false) {
+              <button type="button" class="sort-button" [attr.aria-label]="'Sort by ' + column.label" (click)="requestSort(column)">
+                {{ column.label }}<svg lucideArrowDownAZ [class.descending]="ariaSort(column.key) === 'descending'" aria-hidden="true" />
+              </button>
+            } @else {
+              <span>{{ column.label }}</span>
+            }
+          </th>
+        }
+        <ng-content select="[project-table-actions-header]" />
+      </tr>
+    </thead>
+    <ng-content select="tbody" />
+  </table>
+</div>

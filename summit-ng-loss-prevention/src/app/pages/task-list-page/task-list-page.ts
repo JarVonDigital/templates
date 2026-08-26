@@ -1,7 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  LucideArrowDownAZ,
   LucideArrowLeftRight,
   LucideCheck,
   LucideChevronLeft,
@@ -12,14 +11,15 @@ import {
   LucideX,
 } from '@lucide/angular';
 import { BulkActionItem, BulkActions } from '../../shared/bulk-actions/bulk-actions';
-import { TableShell } from '../../shared/table-shell/table-shell';
+import { ProjectTable, ProjectTableSortChange } from '../../shared/project-table/project-table';
 import { TableHeader } from '../../shared/table-header/table-header';
+import { TaskFilterDrawer } from '../../shared/task-filter-drawer/task-filter-drawer';
+import { DueMode, SavedTaskFilter, TaskFilterValues } from '../../shared/task-filter-drawer/task-filter.types';
 
 type TaskStatus = 'Pending' | 'Attempt 1' | 'Scheduled' | 'WIP' | 'Closed-Cancelled' | 'Completed';
 type ColumnKey = 'due' | 'status' | 'task' | 'policy' | 'client' | 'dba' | 'address' | 'lastVisit' | 'cancelled' | 'reason' | 'consultant';
 type SortDirection = 'asc' | 'desc';
 type BulkAction = 'reassign' | 'status' | 'map' | null;
-type DueMode = 'before' | 'on' | 'after' | 'range';
 
 interface TaskRow {
   readonly id: string;
@@ -47,7 +47,7 @@ interface ColumnDefinition {
   readonly cellClass?: (task: TaskRow) => string;
 }
 
-interface FilterValues {
+interface FilterValues extends TaskFilterValues {
   readonly status: string;
   readonly state: string;
   readonly consultant: string;
@@ -93,7 +93,7 @@ const TASK_BULK_ACTIONS: readonly BulkActionItem[] = [
 
 @Component({
   selector: 'app-task-list-page',
-  imports: [RouterLink, BulkActions, TableShell, TableHeader, LucideArrowDownAZ, LucideArrowLeftRight, LucideCheck, LucideChevronLeft, LucideChevronRight, LucideMap, LucideMoreVertical, LucidePencil, LucideX],
+  imports: [RouterLink, BulkActions, ProjectTable, TableHeader, TaskFilterDrawer, LucideArrowLeftRight, LucideCheck, LucideChevronLeft, LucideChevronRight, LucideMap, LucideMoreVertical, LucidePencil, LucideX],
   templateUrl: './task-list-page.html',
   styleUrl: './task-list-page.scss',
 })
@@ -158,7 +158,7 @@ export class TaskListPage {
   readonly filterDraftLastVisit = signal('');
   readonly filterDraftCancelled = signal('');
   readonly filterDraftReason = signal('');
-  readonly savedFilters = signal<readonly SavedFilter[]>(TaskListPage.readSavedFilters());
+  readonly savedFilters = signal<readonly SavedTaskFilter[]>(TaskListPage.readSavedFilters());
   readonly savedFilterName = signal('');
   readonly selectedSavedFilter = signal('');
   readonly selected = signal<ReadonlySet<string>>(new Set());
@@ -220,11 +220,23 @@ export class TaskListPage {
   togglePage(checked: boolean): void { this.selected.update((current) => { const next = new Set(current); this.pageTasks().forEach((task) => checked ? next.add(task.id) : next.delete(task.id)); return next; }); }
   clearSelection(): void { this.selected.set(new Set()); }
   search(value: string): void { this.query.set(value); this.page.set(1); }
-  sort(key: ColumnKey): void { if (this.sortKey() === key) this.sortDirection.update((direction) => direction === 'asc' ? 'desc' : 'asc'); else { this.sortKey.set(key); this.sortDirection.set('asc'); } }
+  applyTableSort(change: ProjectTableSortChange): void {
+    if (!this.columns().some((column) => column.key === change.key)) return;
+    this.sortKey.set(change.key as ColumnKey);
+    this.sortDirection.set(change.direction);
+  }
   goToPage(page: number): void { this.page.set(Math.min(Math.max(page, 1), this.totalPages())); }
   openFilters(): void {
     this.setDraftFilters(this.activeFilterValues()); this.filtersOpen.set(true);
   }
+  applyDrawerFilters(filters: TaskFilterValues): void { this.setDraftFilters(filters); this.applyFilters(); }
+  resetDrawerFilters(): void { this.resetFilters(); }
+  saveDrawerFilter(event: { readonly name: string; readonly values: TaskFilterValues }): void {
+    const savedFilter: SavedFilter = { name: event.name, ...event.values };
+    this.savedFilters.update((filters) => [...filters.filter((filter) => filter.name !== event.name), savedFilter]);
+    this.persistSavedFilters(); this.announcement.set(`Saved filter ${event.name}`);
+  }
+  deleteDrawerFilter(name: string): void { this.savedFilters.update((filters) => filters.filter((filter) => filter.name !== name)); this.persistSavedFilters(); }
   applyFilters(): void {
     this.setActiveFilters(this.draftFilterValues()); this.page.set(1); this.filtersOpen.set(false); this.announcement.set(`${this.activeFilterCount()} filters applied`);
   }
@@ -270,7 +282,7 @@ export class TaskListPage {
     const csv = [['Task', 'Due', 'Status', 'Policy', 'Client', 'Address', 'Consultant'], ...rows.map((task) => [task.id, task.due, task.status, task.policy, task.client, task.address, task.consultant])].map((row) => row.map((value) => `"${value.replaceAll('"', '""')}"`).join(',')).join('\n');
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = 'summit-tasks.csv'; link.click(); URL.revokeObjectURL(link.href); this.announcement.set(`${rows.length} tasks exported`);
   }
-  private draftFilterValues(): FilterValues {
+  draftFilterValues(): FilterValues {
     return { status: this.filterDraftStatus(), state: this.filterDraftState(), consultant: this.filterDraftConsultant(), due: this.filterDraftDue(), dueMode: this.filterDraftDueMode(), dueEnd: this.filterDraftDueEnd(), county: this.filterDraftCounty(), city: this.filterDraftCity(), zip: this.filterDraftZip(), premiumMin: this.filterDraftPremiumMin(), premiumMax: this.filterDraftPremiumMax(), taskId: this.filterDraftTaskId(), policy: this.filterDraftPolicy(), client: this.filterDraftClient(), lastVisit: this.filterDraftLastVisit(), cancelled: this.filterDraftCancelled(), reason: this.filterDraftReason() };
   }
   private activeFilterValues(): FilterValues {

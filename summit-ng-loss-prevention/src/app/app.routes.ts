@@ -30,19 +30,13 @@ export const routes: Routes = [
       },
       {
         path: 'account',
-        data: { title: 'Account details' },
         loadComponent: () =>
-          import('./pages/task-context-placeholder-page/task-context-placeholder-page').then(
-            (m) => m.TaskContextPlaceholderPage
-          ),
+          import('./pages/account-page/account-page').then((m) => m.AccountPage),
       },
       {
         path: 'claims',
-        data: { title: 'Claim details' },
         loadComponent: () =>
-          import('./pages/task-context-placeholder-page/task-context-placeholder-page').then(
-            (m) => m.TaskContextPlaceholderPage
-          ),
+          import('./pages/claims-page/claims-page').then((m) => m.ClaimsPage),
       },
       {
         path: 'recommendations',

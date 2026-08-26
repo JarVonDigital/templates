@@ -95,6 +95,10 @@ button {
   }
 }
 
+.mobile-capture {
+  display: none;
+}
+
 svg {
   width: 21px;
   height: 21px;
@@ -134,5 +138,39 @@ svg {
     clip: rect(0 0 0 0);
     white-space: nowrap;
     clip-path: inset(50%);
+  }
+}
+
+@media (max-width: 700px) {
+  .top-bar { z-index: 60; overflow: visible; }
+  .quick-actions .desktop-capture { display: none; }
+  .mobile-capture {
+    position: fixed;
+    left: 50%;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 70;
+    display: grid;
+    width: calc((100vw - 28px) / 5);
+    height: 64px;
+    align-content: center;
+    justify-items: center;
+    gap: 1px;
+    padding: 0;
+    border: 0;
+    border-radius: 24px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--summit-teal);
+    transform: translateX(-50%);
+    opacity: 1;
+    transition: color 180ms ease, opacity 220ms ease, transform 260ms cubic-bezier(.2, .8, .2, 1);
+  }
+  .mobile-capture:hover { background: transparent; color: var(--brand-deep-blue); transform: translateX(-50%); }
+  .mobile-capture svg { width: 24px; height: 24px; }
+  .mobile-capture span { font-size: 9px; font-weight: 700; line-height: 1; }
+  :host-context(.mobile-nav-hidden) .mobile-capture {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, calc(100% + 28px));
   }
 }

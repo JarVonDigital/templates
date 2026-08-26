@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   LucideBuilding2,
@@ -29,4 +29,6 @@ import {
 export class TopNavigation {
   readonly taskId = input.required<string>();
   readonly highSeverityRecommendationCount = input(0);
+  readonly takePhoto = output<void>();
+  readonly openAttachments = output<void>();
 }

@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
-  LucideArrowDownAZ,
   LucideCalendarClock,
   LucideCheckCircle2,
   LucideChevronLeft,
@@ -13,11 +12,12 @@ import {
   LucideMoreVertical,
   LucideSearch,
   LucideShieldAlert,
-  LucideX,
 } from '@lucide/angular';
 import { BulkActionItem, BulkActions } from '../../shared/bulk-actions/bulk-actions';
-import { TableShell } from '../../shared/table-shell/table-shell';
+import { ProjectTable, ProjectTableSortChange } from '../../shared/project-table/project-table';
 import { TableHeader } from '../../shared/table-header/table-header';
+import { ScrollWorkspace } from '../../shared/scroll-workspace/scroll-workspace';
+import { FilterDrawer } from '../../shared/filter-drawer/filter-drawer';
 
 type Urgency = 'Routine' | 'Important' | 'Critical';
 type RecommendationStatus = 'Open' | 'In progress' | 'Scheduled' | 'Awaiting verification' | 'Verified' | 'Completed' | 'Cancelled Policy';
@@ -67,6 +67,30 @@ const RECOMMENDATIONS: readonly Recommendation[] = [
   { id: 'REC-007', title: 'Add monthly housekeeping inspections', standard: 'Custom · Property', description: 'Schedule a documented walkthrough of storage, access, and waste areas each month.', urgency: 'Routine', visit: 'Visit Detail #2', location: '22 Main St, Elsewhere TX 31333', dateAdded: '08/15/2026', dueDate: '09/18/2026', owner: 'M. Chen', status: 'Scheduled', statusDate: null },
   { id: 'REC-008', title: 'Refresh the approved driver list', standard: 'Custom · Fleet', description: 'Reconcile active drivers against motor vehicle record checks and current authorization forms.', urgency: 'Routine', visit: 'Visit Detail', location: '123 Main St, Somewhere TX 21333', dateAdded: '08/14/2026', dueDate: '09/25/2026', owner: 'S. Wilson', status: 'Open', statusDate: null },
   { id: 'REC-009', title: 'Review administrative forms annually', standard: 'ADM 999 · Administrative', description: 'Assign an annual review date and document the owner for each loss-prevention form.', urgency: 'Routine', visit: 'Visit Detail #2', location: '22 Main St, Elsewhere TX 31333', dateAdded: '08/15/2026', dueDate: '10/02/2026', owner: 'K. Morris', status: 'Scheduled', statusDate: null },
+  ...Array.from({ length: 27 }, (_, index): Recommendation => {
+    const sequence = index + 10;
+    const urgency: Urgency = 'Critical';
+    const titles = ['Install machine guarding verification tags', 'Inspect elevated work platforms before use', 'Update the contractor orientation roster', 'Label chemical storage cabinets', 'Document forklift pre-shift inspections', 'Replace damaged electrical extension cords', 'Post confined-space entry requirements', 'Refresh heat-stress prevention training', 'Verify emergency eyewash station access'];
+    const owners = ['J. Alvarez', 'R. Patel', 'M. Chen', 'S. Wilson', 'K. Morris'];
+    const statuses: readonly RecommendationStatus[] = ['Open', 'In progress', 'Scheduled', 'Awaiting verification', 'Verified'];
+    const locations = [['Visit Detail', '123 Main St, Somewhere TX 21333'], ['Visit Detail #2', '22 Main St, Elsewhere TX 31333'], ['Visit Detail #3', '75 River Rd, Brookside TX 21334']] as const;
+    const location = locations[index % locations.length];
+    const dueDay = String(3 + (index * 2) % 26).padStart(2, '0');
+    return {
+      id: `REC-${String(sequence).padStart(3, '0')}`,
+      title: titles[index % titles.length],
+      standard: index % 3 === 0 ? 'OSHA 1910 · Safety' : index % 3 === 1 ? 'ADM 42 · Administrative' : 'Custom · Property',
+      description: 'Complete the corrective action, record the evidence, and confirm the responsible owner understands the follow-up requirement.',
+      urgency,
+      visit: location[0],
+      location: location[1],
+      dateAdded: `08/${String(14 + index % 10).padStart(2, '0')}/2026`,
+      dueDate: `09/${dueDay}/2026`,
+      owner: owners[index % owners.length],
+      status: statuses[index % statuses.length],
+      statusDate: null,
+    };
+  }),
 ];
 
 const RECOMMENDATION_BULK_ACTIONS: readonly BulkActionItem[] = [
@@ -79,7 +103,7 @@ const EMPTY_FILTERS: RecommendationFilters = { urgency: '', status: '', owner: '
 
 @Component({
   selector: 'app-recommendations-page',
-  imports: [BulkActions, TableShell, TableHeader, LucideArrowDownAZ, LucideCalendarClock, LucideCheckCircle2, LucideChevronLeft, LucideChevronRight, LucideCircleAlert, LucideFilter, LucideLightbulb, LucideMoreVertical, LucideSearch, LucideShieldAlert, LucideX],
+  imports: [BulkActions, ScrollWorkspace, ProjectTable, TableHeader, FilterDrawer, LucideCalendarClock, LucideCheckCircle2, LucideChevronLeft, LucideChevronRight, LucideCircleAlert, LucideFilter, LucideLightbulb, LucideMoreVertical, LucideSearch, LucideShieldAlert],
   templateUrl: './recommendations-page.html',
   styleUrl: './recommendations-page.scss',
 })
@@ -95,6 +119,7 @@ export class RecommendationsPage {
     { key: 'owner', label: 'Owner', value: (recommendation) => recommendation.owner, cellClass: () => 'owner' },
     { key: 'status', label: 'Status', value: (recommendation) => recommendation.status, cellClass: (recommendation) => `status ${recommendation.status.toLowerCase().replaceAll(' ', '-')}` },
   ]);
+  readonly taskColumns = computed(() => this.columns().filter((column) => column.key === 'title' || column.key === 'location' || column.key === 'dueDate'));
   readonly urgencyLevels: readonly Urgency[] = ['Critical', 'Important', 'Routine'];
   readonly selectedUrgency = signal<Urgency>('Critical');
   readonly query = signal('');
@@ -130,13 +155,19 @@ export class RecommendationsPage {
     const direction = this.sortDescending() ? -1 : 1;
     return [...this.filteredRecommendations()].sort((left, right) => String(left[key]).localeCompare(String(right[key]), undefined, { numeric: true }) * direction);
   });
-  readonly pagedRecommendations = computed(() => this.sortedRecommendations().slice((this.page() - 1) * this.pageSize, this.page() * this.pageSize));
+  readonly pagedRecommendations = computed(() => this.taskId()
+    ? this.sortedRecommendations()
+    : this.sortedRecommendations().slice((this.page() - 1) * this.pageSize, this.page() * this.pageSize));
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredRecommendations().length / this.pageSize)));
   readonly activeFilterCount = computed(() => Object.entries(this.activeFilters()).filter(([key, value]) => key !== 'dueMode' && Boolean(value)).length);
   readonly allVisibleSelected = computed(() => this.filteredRecommendations().length > 0
     && this.filteredRecommendations().every((recommendation) => this.selected().has(recommendation.id)));
 
   isColumnVisible(key: RecommendationColumnKey): boolean { return this.visibleColumns().has(key); }
+
+  selectUrgency(urgency: Urgency): void {
+    this.selectedUrgency.set(urgency);
+  }
 
 
   countFor(urgency: Urgency): number {
@@ -168,14 +199,11 @@ export class RecommendationsPage {
     this.page.set(Math.min(Math.max(page, 1), this.totalPages()));
   }
 
-  toggleSort(key: RecommendationSortKey): void {
-    if (this.sortKey() === key) this.sortDescending.update((descending) => !descending);
-    else { this.sortKey.set(key); this.sortDescending.set(false); }
+  applyTableSort(change: ProjectTableSortChange): void {
+    if (!this.columns().some((column) => column.key === change.key)) return;
+    this.sortKey.set(change.key as RecommendationSortKey);
+    this.sortDescending.set(change.direction === 'desc');
     this.page.set(1);
-  }
-
-  sortPressed(key: RecommendationSortKey): boolean {
-    return this.sortKey() === key;
   }
 
   applyRowStatus(id: string, status: BulkRecommendationStatus): void {

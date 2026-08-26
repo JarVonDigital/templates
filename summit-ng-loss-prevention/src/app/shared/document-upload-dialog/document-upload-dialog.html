@@ -1,0 +1,50 @@
+@if (open()) {
+  <div class="dialog-backdrop" (click)="close()">
+    <section class="document-dialog" role="dialog" aria-modal="true" aria-labelledby="document-dialog-title" aria-describedby="document-dialog-description" (click)="$event.stopPropagation()">
+      <header class="dialog-header">
+        <div>
+          <p class="eyebrow">Task evidence</p>
+          <h2 id="document-dialog-title">Add task document</h2>
+          <p id="document-dialog-description">Attach a checklist, report, certificate, or other supporting file.</p>
+        </div>
+        <button type="button" class="icon-button" aria-label="Close document dialog" (click)="close()"><svg lucideX aria-hidden="true" /></button>
+      </header>
+
+      @if (!selectedFile()) {
+        <div class="empty-upload">
+          <div class="upload-icon"><svg lucideFilePlus2 aria-hidden="true" /></div>
+          <h3>Choose a document to attach</h3>
+          <p>Upload a supporting file so reviewers can find it alongside the task photos.</p>
+          <button type="button" class="upload-button" (click)="openFilePicker()"><svg lucideUpload aria-hidden="true" /><span>Choose document</span></button>
+          <input #fileInput class="sr-only" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" aria-label="Choose a document to attach" (change)="handleFileSelection($event)" />
+          <span class="upload-hint">PDF, Word, Excel, CSV, or TXT · up to 25 MB</span>
+        </div>
+      } @else {
+        <div class="document-form">
+          <div class="selected-file" aria-label="Selected document">
+            <div class="file-icon"><svg lucideFileText aria-hidden="true" /></div>
+            <div><strong>{{ selectedFile()?.name }}</strong><span>{{ selectedFile()?.type || 'Document' }} · {{ selectedFile()?.size }} bytes</span></div>
+          </div>
+          <div class="document-meta">
+            <div>
+              <label for="document-title">Document title</label>
+              <input id="document-title" type="text" [value]="documentTitle()" (input)="updateTitle($event)" />
+            </div>
+            <div>
+              <label for="document-note">Note <span>(optional)</span></label>
+              <textarea id="document-note" rows="5" placeholder="What should the reviewer know?" [value]="documentNote()" (input)="updateNote($event)"></textarea>
+            </div>
+            <div class="review-callout"><span class="callout-dot"></span><p>The file will be available from the task document gallery.</p></div>
+          </div>
+        </div>
+      }
+
+      <footer class="dialog-footer">
+        <button type="button" class="cancel-button" (click)="close()">Cancel</button>
+        @if (selectedFile()) {
+          <button type="button" class="save-button" (click)="saveDocument()"><svg lucideCheck aria-hidden="true" /><span>Save document</span></button>
+        }
+      </footer>
+    </section>
+  </div>
+}

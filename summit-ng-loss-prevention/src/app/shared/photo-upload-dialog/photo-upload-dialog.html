@@ -1,0 +1,94 @@
+@if (open()) {
+  <div class="dialog-backdrop" (click)="close()">
+    <section class="photo-dialog" role="dialog" aria-modal="true" aria-labelledby="photo-dialog-title" aria-describedby="photo-dialog-description" (click)="$event.stopPropagation()">
+      <header class="dialog-header">
+        <div>
+          <p class="eyebrow">Task evidence</p>
+          <h2 id="photo-dialog-title">Add task photo</h2>
+          <p id="photo-dialog-description">Upload an image, then mark the area that needs attention.</p>
+        </div>
+        <button type="button" class="icon-button" aria-label="Close photo dialog" (click)="close()"><svg lucideX aria-hidden="true" /></button>
+      </header>
+
+      @if (!imageSource()) {
+        <div class="empty-upload">
+          <div class="upload-icon"><svg lucideImagePlus aria-hidden="true" /></div>
+          <h3>Choose a photo to annotate</h3>
+          <p>Use a camera capture on mobile or pick an image from your device.</p>
+          <button type="button" class="upload-button" (click)="openFilePicker()"><svg lucideUpload aria-hidden="true" /><span>Choose image</span></button>
+          <input #fileInput class="sr-only" type="file" accept="image/*" capture="environment" aria-label="Choose an image to annotate" (change)="handleFileSelection($event)" />
+          <span class="upload-hint">JPG, PNG, or HEIC · up to 10 MB</span>
+        </div>
+      } @else {
+        <div class="editor-layout">
+          <div class="canvas-panel">
+            <div class="canvas-toolbar" role="toolbar" aria-label="Photo annotation tools">
+              <div class="tool-group" aria-label="Drawing tools">
+                <span class="toolbar-label">Mark up</span>
+                <button type="button" class="tool-button" [class.active]="annotationTool() === 'pen'" aria-label="Pen tool" [attr.aria-pressed]="annotationTool() === 'pen'" (click)="selectTool('pen')"><svg lucidePencil aria-hidden="true" /><span>Pen</span></button>
+                <button type="button" class="tool-button" [class.active]="annotationTool() === 'circle'" aria-label="Circle tool" [attr.aria-pressed]="annotationTool() === 'circle'" (click)="selectTool('circle')"><svg lucideCircle aria-hidden="true" /><span>Circle</span></button>
+                <button type="button" class="tool-button" [class.active]="annotationTool() === 'callout'" aria-label="Numbered arrow tool" [attr.aria-pressed]="annotationTool() === 'callout'" (click)="selectTool('callout')"><svg lucideArrowUpRight aria-hidden="true" /><span>Callout</span></button>
+                <button type="button" class="tool-button" [class.active]="annotationTool() === 'text'" aria-label="Text box tool" [attr.aria-pressed]="annotationTool() === 'text'" (click)="selectTool('text')"><svg lucideType aria-hidden="true" /><span>Text</span></button>
+                <button type="button" class="tool-button" aria-label="Erase all annotations" (click)="resetDrawing()"><svg lucideEraser aria-hidden="true" /><span>Clear</span></button>
+                <button type="button" class="tool-button" aria-label="Undo last annotation" [disabled]="!canUndo()" (click)="undo()"><svg lucideRotateCcw aria-hidden="true" /><span>Undo</span></button>
+              </div>
+              <div class="color-tools" aria-label="Annotation appearance">
+                <button type="button" class="color-swatch red" aria-label="Red pen" [attr.aria-pressed]="brushColor() === '#ff4d5f'" (click)="selectColor('#ff4d5f')"></button>
+                <button type="button" class="color-swatch amber" aria-label="Amber pen" [attr.aria-pressed]="brushColor() === '#f0a11a'" (click)="selectColor('#f0a11a')"></button>
+                <button type="button" class="color-swatch blue" aria-label="Blue pen" [attr.aria-pressed]="brushColor() === '#0c67a0'" (click)="selectColor('#0c67a0')"></button>
+                <div class="size-control" role="group" aria-label="Annotation size">
+                  <span>Size</span>
+                  @for (size of [3, 6, 10, 14]; track size) {
+                    <button type="button" class="size-option" [class.selected]="brushSize() === size" [attr.aria-pressed]="brushSize() === size" [attr.aria-label]="size + ' pixel annotation size'" (click)="selectBrushSize(size)"><i [style.width.px]="size" [style.height.px]="size"></i></button>
+                  }
+                </div>
+                @if (annotationTool() === 'text') {
+                  <div class="text-size-control" role="group" aria-label="Text size">
+                    <span>Text</span>
+                    @for (size of [12, 14, 16, 18]; track size) {
+                      <button type="button" [class.selected]="textSize() === size" [attr.aria-pressed]="textSize() === size" (click)="selectTextSize(size)">{{ size }}</button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas #canvas aria-label="Photo annotation canvas" [style.cursor]="canvasCursor()" (pointerdown)="startDrawing($event)" (pointermove)="draw($event)" (pointerup)="stopDrawing($event)" (pointercancel)="stopDrawing($event)" (pointerleave)="stopDrawing($event); setCanvasCursor('crosshair')"></canvas>
+            </div>
+            <p class="canvas-hint"><svg lucidePencil aria-hidden="true" /> @if (annotationTool() === 'callout') { Drag from a number badge to the area it identifies, then select it to add a label. } @else if (annotationTool() === 'text') { Drag to place a text box, then select it to edit the text. } @else { Select a tool, then draw directly on the photo. }</p>
+          </div>
+
+          <aside class="photo-meta" aria-label="Photo details">
+            <div>
+              <label for="photo-title">Photo title</label>
+              <input id="photo-title" type="text" [value]="photoTitle()" (input)="updateTitle($event)" />
+            </div>
+            @if (selectedCallout(); as callout) {
+              <div class="annotation-editor">
+                <label for="callout-text">Callout {{ callout.number }} label <span>(optional)</span></label>
+                <input id="callout-text" type="text" maxlength="60" placeholder="Add a short label" [value]="callout.text" (input)="updateAnnotationText($event)" />
+              </div>
+            } @else if (selectedTextBox(); as textBox) {
+              <div class="annotation-editor">
+                <label for="annotation-text">Text box</label>
+                <input id="annotation-text" type="text" maxlength="80" [value]="textBox.text" (input)="updateAnnotationText($event)" />
+              </div>
+            }
+            <div>
+              <label for="photo-note">Note <span>(optional)</span></label>
+              <textarea id="photo-note" rows="5" placeholder="What should the reviewer notice?" [value]="photoNote()" (input)="updateNote($event)"></textarea>
+            </div>
+            <div class="review-callout"><span class="callout-dot"></span><p>Annotations are saved with the photo and can be reviewed from the task gallery.</p></div>
+          </aside>
+        </div>
+      }
+
+      <footer class="dialog-footer">
+        <button type="button" class="cancel-button" (click)="close()">Cancel</button>
+        @if (imageSource()) {
+          <button type="button" class="save-button" (click)="savePhoto()"><svg lucideCheck aria-hidden="true" /><span>Save photo</span></button>
+        }
+      </footer>
+    </section>
+  </div>
+}

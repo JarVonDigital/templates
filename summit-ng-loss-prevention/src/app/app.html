@@ -1,2 +1,3 @@
-<app-sidebar (expandedChange)="sidebarExpanded.set($event)" />
-<main class="app-content" [class.sidebar-expanded]="sidebarExpanded()"><router-outlet /></main>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<app-sidebar (expandedChange)="sidebarExpanded.set($event)" (mobileNavigationHiddenChange)="mobileNavigationHidden.set($event)" />
+<main id="main-content" class="app-content" [class.sidebar-expanded]="sidebarExpanded()" [class.mobile-nav-hidden]="mobileNavigationHidden()"><router-outlet /></main>

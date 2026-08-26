@@ -1,5 +1,5 @@
 <div class="content">
-      <app-policy-summary />
+      <app-policy-summary (contactSelected)="updateVisitContact($event)" />
       <section id="task-details" class="task-details" aria-labelledby="task-details-title">
         <h2 id="task-details-title">Task Details</h2>
         <div class="details-grid">
@@ -12,10 +12,72 @@
           <app-ui-field id="recommendations" label="Recommendations Captured" value="Yes" [required]="true" kind="select" [options]="['Yes', 'No']" />
         </div>
       </section>
-      <section class="visits-grid" aria-label="Visit details">
+      <section class="visits-section" aria-labelledby="visits-title">
+        <div class="visits-heading"><div><p class="section-kicker">Fieldwork schedule</p><h2 id="visits-title">Visit details</h2></div><p>Each visit includes its assigned loss prevention contact.</p></div>
+        <div class="visits-grid">
         @for (visit of visits(); track visit.id; let first = $first) {
-          <app-visit-card [visit]="visit" [canRemove]="!first" [canAdd]="!first" (addVisit)="addVisit()" (removeVisit)="removeVisit($event)" (locationChange)="updateVisitLocation(visit.id, $event)" />
+          <app-visit-card [visit]="visit" [canRemove]="!first" [canAdd]="!first" (addVisit)="addVisit()" (removeVisit)="removeVisit($event)" (locationChange)="updateVisitLocation(visit.id, $event)" (contactPicker)="openContactPicker(visit.id)" />
         }
+        </div>
+      </section>
+      <section class="photos-panel" aria-labelledby="task-photos-title">
+        <div class="photos-heading">
+          <div>
+            <p class="section-kicker">Evidence library</p>
+            <h2 id="task-photos-title">Task photos</h2>
+          </div>
+          <div class="gallery-actions">
+            <label class="visit-filter">Visit
+              <select aria-label="Show photos from visit" [value]="selectedVisitId()" (change)="selectVisit($event)">
+                @for (visit of visits(); track visit.id) { <option [value]="visit.id" [selected]="selectedVisitId() === visit.id">{{ visit.title }}</option> }
+                <option value="all" [selected]="selectedVisitId() === 'all'">All visits</option>
+              </select>
+            </label>
+            <span class="photo-count">{{ visiblePhotos().length }} attached</span>
+            <button type="button" class="gallery-add" aria-label="Add task photo" (click)="openPhotoDialog()"><svg lucidePlus aria-hidden="true" /></button>
+          </div>
+        </div>
+        <div class="photo-strip" tabindex="0" aria-label="Horizontal task photo gallery">
+          @for (photo of visiblePhotos(); track photo.id) {
+            <figure class="photo-card">
+              <div class="photo-thumbnail">
+                @if (photo.kind === 'static') {
+                  <img [ngSrc]="photo.src" width="240" height="132" [alt]="photo.title" />
+                } @else {
+                  <img [src]="photo.src" width="240" height="132" [alt]="photo.title" />
+                }
+                <span class="photo-mark" aria-hidden="true">✓</span>
+              </div>
+              <figcaption><strong>{{ photo.title }}</strong><span>{{ photo.note }}</span><small>{{ photo.createdAt }}</small></figcaption>
+            </figure>
+          }
+        </div>
+      </section>
+      <section class="documents-panel" aria-labelledby="task-documents-title">
+        <div class="photos-heading">
+          <div>
+            <p class="section-kicker">Evidence library</p>
+            <h2 id="task-documents-title">Task documents</h2>
+          </div>
+          <div class="gallery-actions">
+            <label class="visit-filter">Visit
+              <select aria-label="Show documents from visit" [value]="selectedVisitId()" (change)="selectVisit($event)">
+                @for (visit of visits(); track visit.id) { <option [value]="visit.id" [selected]="selectedVisitId() === visit.id">{{ visit.title }}</option> }
+                <option value="all" [selected]="selectedVisitId() === 'all'">All visits</option>
+              </select>
+            </label>
+            <span class="photo-count">{{ visibleDocuments().length }} attached</span>
+            <button type="button" class="gallery-add" aria-label="Add task document" (click)="openDocumentDialog()"><svg lucidePlus aria-hidden="true" /></button>
+          </div>
+        </div>
+        <div class="document-strip" tabindex="0" aria-label="Horizontal task document gallery">
+          @for (document of visibleDocuments(); track document.id) {
+            <article class="document-card">
+              <div class="document-icon"><svg lucideFileText aria-hidden="true" /><span>{{ document.fileType }}</span></div>
+              <div class="document-details"><strong>{{ document.title }}</strong><span>{{ document.note }}</span><small>{{ document.createdAt }} · {{ document.size }}</small></div>
+            </article>
+          }
+        </div>
       </section>
 </div>
 <footer class="action-bar"><button pButton type="button" class="cancel-button">Cancel</button><button pButton type="button" class="save-button"><svg lucideSave /><span>Save</span></button></footer>

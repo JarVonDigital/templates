@@ -1,0 +1,42 @@
+.dialog-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; overflow: auto; padding: 22px; background: rgb(7 35 55 / 64%); place-items: center; }
+.document-dialog { width: min(720px, 100%); overflow: hidden; border: 1px solid #d4e0e8; border-radius: 18px; background: #fff; box-shadow: 0 28px 80px rgb(0 31 55 / 26%); color: var(--summit-ink); }
+.dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 28px 19px; border-bottom: 1px solid var(--summit-border-soft); }
+.eyebrow { margin: 0 0 4px; color: var(--summit-teal); font-size: 11px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+h2 { margin: 0; font-size: 26px; letter-spacing: -.02em; }
+.dialog-header p:last-child { margin: 5px 0 0; color: var(--summit-muted); font-size: 14px; }
+.icon-button { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border: 1px solid #d7e2ea; border-radius: 9px; background: #fff; color: #507087; }
+.icon-button:hover { background: #f2f7fa; color: var(--summit-navy); }
+.icon-button svg { width: 18px; }
+.empty-upload { display: grid; min-height: 350px; align-content: center; justify-items: center; padding: 44px 24px; text-align: center; }
+.upload-icon { display: grid; width: 64px; height: 64px; margin-bottom: 15px; border-radius: 18px; background: #e6f6f2; color: var(--summit-teal); place-items: center; }
+.upload-icon svg { width: 30px; height: 30px; }
+.empty-upload h3 { margin: 0; font-size: 20px; }
+.empty-upload p { max-width: 390px; margin: 8px 0 18px; color: var(--summit-muted); font-size: 14px; line-height: 1.45; }
+.upload-button, .save-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 8px; font-weight: 700; }
+.upload-button { padding: 0 17px; background: var(--summit-navy); color: #fff; }
+.upload-button:hover { background: #003c68; }
+.upload-button svg, .save-button svg { width: 17px; }
+.upload-hint { margin-top: 12px; color: #8294a3; font-size: 11px; }
+.document-form { display: grid; gap: 18px; padding: 26px 28px 28px; }
+.selected-file { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid #d7e2ea; border-radius: 10px; background: #f5f9fb; }
+.file-icon { display: grid; width: 42px; height: 42px; flex: 0 0 auto; border-radius: 9px; background: #e5f0f8; color: var(--summit-blue); place-items: center; }
+.file-icon svg { width: 22px; }
+.selected-file div:last-child { display: grid; gap: 3px; min-width: 0; }
+.selected-file strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selected-file span { color: var(--summit-muted); font-size: 12px; }
+.document-meta { display: grid; gap: 18px; }
+.document-meta label { display: block; margin-bottom: 7px; color: #536d7f; font-size: 12px; font-weight: 700; }
+.document-meta label span { color: #94a3ae; font-weight: 400; }
+.document-meta input, .document-meta textarea { width: 100%; padding: 10px 11px; border: 1px solid #cbd9e2; border-radius: 7px; background: #fff; color: var(--summit-ink); font-size: 13px; }
+.document-meta input { min-height: 40px; }
+.document-meta textarea { resize: vertical; line-height: 1.4; }
+.document-meta input:focus, .document-meta textarea:focus { border-color: #5aa4ce; outline: 3px solid rgb(20 109 163 / 18%); }
+.review-callout { display: flex; gap: 9px; padding: 11px; border-radius: 8px; background: #f1f8f6; color: #30655f; }
+.review-callout p { margin: 0; font-size: 12px; line-height: 1.4; }
+.callout-dot { width: 8px; height: 8px; flex: 0 0 auto; margin-top: 4px; border-radius: 50%; background: var(--summit-teal); }
+.dialog-footer { display: flex; min-height: 68px; align-items: center; justify-content: flex-end; gap: 10px; padding: 13px 28px; border-top: 1px solid var(--summit-border-soft); background: #fbfcfd; }
+.cancel-button { min-height: 40px; padding: 0 13px; border: 0; background: transparent; color: #657987; font-weight: 600; }
+.cancel-button:hover { color: var(--summit-navy); }
+.save-button { padding: 0 17px; background: var(--summit-teal); color: #fff; }
+.save-button:hover { background: #056a5e; }
+@media (max-width: 500px) { .dialog-backdrop { padding: 10px; align-items: end; } .document-dialog { border-radius: 16px; } .dialog-header { padding: 19px 18px 15px; } .document-form { padding: 18px; } .dialog-footer { padding-inline: 18px; } .dialog-header h2 { font-size: 22px; } }

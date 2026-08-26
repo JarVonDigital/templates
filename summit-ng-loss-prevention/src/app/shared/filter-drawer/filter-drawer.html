@@ -1,0 +1,5 @@
+<button type="button" class="app-filter-drawer__mask" aria-label="Close filters" (click)="dismissed.emit()"></button>
+<aside class="app-filter-drawer" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+  <header class="app-filter-drawer__header"><h2>{{ title() }}</h2><button type="button" aria-label="Close filters" (click)="dismissed.emit()"><svg lucideX aria-hidden="true" /></button></header>
+  <div class="app-filter-drawer__content"><p class="app-filter-drawer__description">{{ description() }}</p><ng-content /></div>
+</aside>

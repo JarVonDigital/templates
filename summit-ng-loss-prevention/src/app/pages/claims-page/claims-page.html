@@ -1,0 +1,70 @@
+<main class="claims-page">
+  @if (taskId) {
+  <app-scroll-workspace [headingTemplate]="taskHeading" [fixedTemplate]="taskFixed" [compactTemplate]="taskCompact" [bodyTemplate]="taskBody" [resetKey]="query()" surfaceLabel="Claim register">
+    <ng-template #taskHeading>
+      <div class="page-heading"><div><span class="eyebrow">@if (taskId) { Task {{ taskId }} } @else { Claims }</span><h1>Claims</h1><p>Review reported claims and their financial impact.</p></div><div class="overview" aria-label="Claim overview"><div><svg lucideBriefcaseBusiness aria-hidden="true" /><span><strong>{{ claims().length }}</strong>Total claims</span></div><div><svg lucideCircleCheck aria-hidden="true" /><span><strong>{{ openClaimCount() }}</strong>Open claims</span></div><div><svg lucideCircleCheck aria-hidden="true" /><span><strong>{{ closedClaimCount() }}</strong>Closed claims</span></div><div><svg lucideCircleDollarSign aria-hidden="true" /><span><strong>{{ formatCurrency(totalIncurred()) }}</strong>Total incurred</span></div></div></div>
+    </ng-template>
+
+    <ng-template #taskFixed>
+      <div class="register-heading"><div><h2 id="claims-table-heading">Claim register</h2><p>Search and review claims associated with this task.</p></div><div class="register-controls"><label class="search-box"><span class="sr-only">Search claims</span><svg lucideSearch aria-hidden="true" /><input type="search" placeholder="Search claim, worker, policy, or status" [value]="query()" (input)="search($any($event.target).value)" /></label><button type="button" class="control-button" (click)="filtersOpen.set(true); columnsOpen.set(false)" [attr.aria-expanded]="filtersOpen()"><svg lucideFilter aria-hidden="true" />Filters @if (activeFilterCount()) { <span class="filter-count">{{ activeFilterCount() }}</span> }</button></div></div>
+    </ng-template>
+
+    <ng-template #taskCompact><div class="overview-dock" aria-label="Claim overview"><span><strong>{{ claims().length }}</strong> Total</span><span><strong>{{ openClaimCount() }}</strong> Open</span><span><strong>{{ closedClaimCount() }}</strong> Closed</span><span><strong>{{ formatCurrency(totalIncurred()) }}</strong> Incurred</span></div></ng-template>
+
+    <ng-template #taskBody>
+      <section class="claims-table" aria-labelledby="claims-table-heading">
+    <h2 id="claims-table-heading" class="sr-only">Claims</h2>
+    <app-project-table [columns]="columns()" [visibleColumns]="visibleColumns()" [sortKey]="sortKey()" [sortDirection]="sortDirection()" tableLabel="Claims" minWidth="850px" [fillHeight]="true" (sortChange)="applyTableSort($event)">
+      <tbody>
+        @for (claim of pagedClaims(); track claim.claimKey.claimNumber) {
+              <tr>
+                @if (isColumnVisible('claimNumber')) { <td data-label="Claim #">
+                  <strong>{{ claim.claimKey.claimNumber }}</strong>
+                  <span class="secondary-text">Fund {{ claim.claimKey.fund }} · Year {{ claim.claimKey.fundYear }}</span>
+                </td> }
+                @if (isColumnVisible('iwName')) { <td data-label="Injured worker">{{ claim.iwName }}</td> }
+                @if (isColumnVisible('policyPeriod')) { <td data-label="Policy period">
+                  <span class="stacked-value"><strong>{{ claim.policyPeriod.start }}</strong><span>to {{ claim.policyPeriod.end }}</span></span>
+                </td> }
+                @if (isColumnVisible('dateOfInjury')) { <td data-label="Date of injury">{{ claim.dateOfInjury }}</td> }
+                @if (isColumnVisible('status')) { <td data-label="Status"><span class="status-pill" [class.open]="claim.status === 'Open'" [class.closed]="claim.status === 'Closed'">{{ claim.status }}</span></td> }
+                @if (isColumnVisible('totalIncurred')) { <td data-label="Total incurred" class="amount-cell">{{ formatCurrency(claim.totalIncurred) }}</td> }
+              </tr>
+        } @empty { <tr><td class="empty-state" [attr.colspan]="visibleColumns().size"><strong>No claims found</strong><span>Try changing your search or filters.</span></td></tr> }
+      </tbody>
+    </app-project-table>
+    <footer class="pagination"><span>Showing {{ pageStart() }}–{{ pageEnd() }} of {{ filteredClaims().length }}</span><div><button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 1" aria-label="Previous page"><svg lucideChevronLeft aria-hidden="true" /></button><button type="button" class="page-number active" aria-current="page">{{ page() }}</button><button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()" aria-label="Next page"><svg lucideChevronRight aria-hidden="true" /></button></div></footer>
+      </section>
+    </ng-template>
+  </app-scroll-workspace>
+  } @else {
+  <header class="page-heading all-claims-page-heading">
+    <app-table-header title="Claims" searchLabel="Search claims" searchPlaceholder="Search claim, worker, policy, or status" [resultCount]="filteredClaims().length" resultLabel="claims" [filterCount]="activeFilterCount()" [(columns)]="columns" [(visibleColumns)]="visibleColumns" [(columnsOpen)]="columnsOpen" (searchChanged)="search($event)" (filtersOpened)="filtersOpen.set(true); columnsOpen.set(false)" />
+  </header>
+  <section class="claims-table table-card-shell" aria-labelledby="all-claims-table-heading">
+    <h2 id="all-claims-table-heading" class="sr-only">Claims</h2>
+    <app-project-table [columns]="columns()" [visibleColumns]="visibleColumns()" [sortKey]="sortKey()" [sortDirection]="sortDirection()" tableLabel="Claims" minWidth="850px" [fillHeight]="true" (sortChange)="applyTableSort($event)">
+      <tbody>
+        @for (claim of pagedClaims(); track claim.claimKey.claimNumber) {
+          <tr>
+            @if (isColumnVisible('claimNumber')) { <td data-label="Claim #"><strong>{{ claim.claimKey.claimNumber }}</strong><span class="secondary-text">Fund {{ claim.claimKey.fund }} · Year {{ claim.claimKey.fundYear }}</span></td> }
+            @if (isColumnVisible('iwName')) { <td data-label="Injured worker">{{ claim.iwName }}</td> }
+            @if (isColumnVisible('policyPeriod')) { <td data-label="Policy period"><span class="stacked-value"><strong>{{ claim.policyPeriod.start }}</strong><span>to {{ claim.policyPeriod.end }}</span></span></td> }
+            @if (isColumnVisible('dateOfInjury')) { <td data-label="Date of injury">{{ claim.dateOfInjury }}</td> }
+            @if (isColumnVisible('status')) { <td data-label="Status"><span class="status-pill" [class.open]="claim.status === 'Open'" [class.closed]="claim.status === 'Closed'">{{ claim.status }}</span></td> }
+            @if (isColumnVisible('totalIncurred')) { <td data-label="Total incurred" class="amount-cell">{{ formatCurrency(claim.totalIncurred) }}</td> }
+          </tr>
+        } @empty { <tr><td class="empty-state" [attr.colspan]="visibleColumns().size"><strong>No claims found</strong><span>Try changing your search or filters.</span></td></tr> }
+      </tbody>
+    </app-project-table>
+    <footer class="pagination"><span>Showing {{ pageStart() }}–{{ pageEnd() }} of {{ filteredClaims().length }}</span><div><button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 1" aria-label="Previous page"><svg lucideChevronLeft aria-hidden="true" /></button><button type="button" class="page-number active" aria-current="page">{{ page() }}</button><button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()" aria-label="Next page"><svg lucideChevronRight aria-hidden="true" /></button></div></footer>
+  </section>
+  }
+</main>
+
+@if (filtersOpen()) {
+  <app-filter-drawer title="Filter claims" (dismissed)="filtersOpen.set(false)">
+    <fieldset><legend>Status</legend>@for (status of statuses; track status) { <button type="button" [class.active]="statusFilter() === status" [attr.aria-pressed]="statusFilter() === status" (click)="setStatusFilter(status)">{{ status }}</button> }</fieldset>
+    <footer class="filter-drawer-footer"><button type="button" (click)="setStatusFilter('All')">Clear filters</button><button type="button" class="apply-button" (click)="filtersOpen.set(false)">Apply</button></footer>
+  </app-filter-drawer>
+}

@@ -63,7 +63,7 @@ export class LrAndRPage {
   readonly isNotApplicable = computed(() => this.assessment() === 'Not applicable');
   readonly totalRecommendationCount = computed(() => Object.values(this.recommendationCounts()).reduce((total, count) => total + count, 0));
   readonly announcement = computed(() => {
-    if (this.saved()) return 'LR and R draft saved.';
+    if (this.saved()) return 'Loss Runs and Recommendations draft saved.';
     return '';
   });
 

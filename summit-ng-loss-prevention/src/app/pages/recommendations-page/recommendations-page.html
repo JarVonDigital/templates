@@ -1,20 +1,10 @@
-<main class="recommendations-page">
-  <header class="page-heading" [class.all-accounts-page-heading]="!taskId()">
-    @if (taskId()) {
-      <div><span class="eyebrow">Task {{ taskId() }}</span><h1>Recommendations</h1><p>Review corrective actions captured for this task.</p></div>
-      <div class="overview" aria-label="Recommendation overview">
-        <div><svg lucideLightbulb aria-hidden="true" /><span><strong>{{ recommendations().length }}</strong>Total recommendations</span></div>
-        <div><svg lucideShieldAlert aria-hidden="true" /><span><strong>{{ countFor('Critical') }}</strong>Need immediate action</span></div>
-        <div><svg lucideCalendarClock aria-hidden="true" /><span><strong>1</strong>Due today</span></div>
-        <div><svg lucideCheckCircle2 aria-hidden="true" /><span><strong>2</strong>Ready to verify</span></div>
-      </div>
-    } @else {
-      <app-table-header title="Recommendations" searchLabel="Search recommendations" searchPlaceholder="Search client, recommendation, owner" [resultCount]="filteredRecommendations().length" resultLabel="recommendations" [filterCount]="activeFilterCount()" [columns]="columns()" [(visibleColumns)]="visibleColumns" [(columnsOpen)]="columnsOpen" (searchChanged)="query.set($event); page.set(1)" (filtersOpened)="filtersOpen.set(true); columnsOpen.set(false)" />
-    }
-  </header>
-
+<main class="recommendations-page" [class.task-recommendations]="!!taskId()">
   @if (taskId()) {
-  <section class="recommendation-register" aria-labelledby="register-heading">
+  <app-scroll-workspace class="task-scroll-workspace" [headingTemplate]="taskHeading" [fixedTemplate]="taskFixed" [compactTemplate]="taskCompact" [bodyTemplate]="taskBody" [resetKey]="selectedUrgency()" surfaceLabel="Recommendation register">
+    <ng-template #taskHeading>
+      <div class="page-heading"><div><span class="eyebrow">Task {{ taskId() }}</span><h1>Recommendations</h1><p>Review corrective actions captured for this task.</p></div><div class="overview" aria-label="Recommendation overview"><div><svg lucideLightbulb aria-hidden="true" /><span><strong>{{ recommendations().length }}</strong>Total recommendations</span></div><div><svg lucideShieldAlert aria-hidden="true" /><span><strong>{{ countFor('Critical') }}</strong>Need immediate action</span></div><div><svg lucideCalendarClock aria-hidden="true" /><span><strong>1</strong>Due today</span></div><div><svg lucideCheckCircle2 aria-hidden="true" /><span><strong>2</strong>Ready to verify</span></div></div></div>
+    </ng-template>
+    <ng-template #taskFixed>
     <div class="register-heading">
       <div><h2 id="register-heading">Recommendation register</h2><p>Prioritized by urgency for faster follow-up.</p></div>
       <div class="register-controls"><label class="search-box"><span class="sr-only">Search recommendations</span><svg lucideSearch aria-hidden="true" /><input type="search" placeholder="Search recommendations" [value]="query()" (input)="updateQuery($event)" /></label><button type="button" class="control-button" (click)="filtersOpen.set(true)" [attr.aria-expanded]="filtersOpen()"><svg lucideFilter aria-hidden="true" />Filters @if (activeFilterCount()) { <span class="filter-count">{{ activeFilterCount() }}</span> }</button></div>
@@ -22,64 +12,70 @@
 
     <div class="urgency-tabs" role="tablist" aria-label="Recommendation urgency">
       @for (urgency of urgencyLevels; track urgency) {
-        <button type="button" role="tab" [id]="urgency.toLowerCase() + '-tab'" [attr.aria-selected]="selectedUrgency() === urgency" [attr.aria-controls]="urgency.toLowerCase() + '-panel'" [class.active]="selectedUrgency() === urgency" [class]="urgency.toLowerCase()" (click)="selectedUrgency.set(urgency)">
+        <button type="button" role="tab" [id]="urgency.toLowerCase() + '-tab'" [attr.aria-selected]="selectedUrgency() === urgency" [attr.aria-controls]="urgency.toLowerCase() + '-panel'" [class.active]="selectedUrgency() === urgency" [class]="urgency.toLowerCase()" (click)="selectUrgency(urgency)">
           <span class="urgency-mark" aria-hidden="true"></span>{{ urgency }}<span class="tab-count">{{ countFor(urgency) }}</span>
         </button>
       }
     </div>
 
-    @if (selected().size) {
-      <app-bulk-actions ariaLabel="Bulk recommendation actions" [selectedCount]="selected().size" [actions]="bulkActions" (actionSelected)="handleBulkAction($event)" (cleared)="clearSelection()" />
-    }
+    @if (selected().size) { <app-bulk-actions ariaLabel="Bulk recommendation actions" [selectedCount]="selected().size" [actions]="bulkActions" (actionSelected)="handleBulkAction($event)" (cleared)="clearSelection()" /> }
+    </ng-template>
 
-    <app-table-shell class="table-wrap" role="tabpanel" [id]="selectedUrgency().toLowerCase() + '-panel'" [attr.aria-labelledby]="selectedUrgency().toLowerCase() + '-tab'">
-      <table>
-        <caption class="sr-only">{{ selectedUrgency() }} recommendations {{ taskId() ? 'for task ' + taskId() : 'across all accounts' }}</caption>
-        <thead><tr><th scope="col" class="select-column"><label><span class="sr-only">Select all visible recommendations</span><input type="checkbox" [checked]="allVisibleSelected()" [indeterminate]="selected().size > 0 && !allVisibleSelected()" (change)="toggleVisible($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck aria-hidden="true" /></span></label></th>@for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <th scope="col" [class]="'column-' + column.key"><button type="button" class="sort-button" [attr.aria-pressed]="sortPressed(column.key)" (click)="toggleSort(column.key)">{{ column.label }}<svg lucideArrowDownAZ [class.descending]="sortPressed(column.key) && sortDescending()" aria-hidden="true" /></button></th> } }<th scope="col" class="actions-column"><span class="sr-only">Actions</span></th></tr></thead>
+    <ng-template #taskCompact><div class="overview-dock" aria-label="Recommendation overview"><span><strong>{{ recommendations().length }}</strong> Total</span><span><strong>{{ countFor('Critical') }}</strong> Immediate</span><span><strong>1</strong> Due today</span><span><strong>2</strong> Ready to verify</span></div></ng-template>
+
+    <ng-template #taskBody>
+      <app-project-table [columns]="taskColumns()" [sortKey]="sortKey()" [sortDirection]="sortDescending() ? 'desc' : 'asc'" tableLabel="Recommendation register" minWidth="920px" (sortChange)="applyTableSort($event)">
+        <th project-table-select-header class="select-column"><label><span class="sr-only">Select all visible recommendations</span><input type="checkbox" [checked]="allVisibleSelected()" [indeterminate]="selected().size > 0 && !allVisibleSelected()" (change)="toggleVisible($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck aria-hidden="true" /></span></label></th>
+        <th project-table-actions-header class="actions-column"><span class="sr-only">Actions</span></th>
         <tbody>
           @for (recommendation of pagedRecommendations(); track recommendation.id) {
             <tr [class.selected-row]="selected().has(recommendation.id)">
               <td class="select-column"><label><span class="sr-only">Select recommendation {{ recommendation.id }}</span><input type="checkbox" [checked]="selected().has(recommendation.id)" (change)="toggleRecommendation(recommendation.id, $any($event.target).checked)" /><span class="custom-check"><svg lucideCheck aria-hidden="true" /></span></label></td>
-              @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [attr.data-label]="column.label" [class]="column.cellClass?.(recommendation) ?? ''"><span class="cell-content">{{ column.value(recommendation) }}</span></td> } }
+              @for (column of taskColumns(); track column.key) {
+                @if (column.key === 'title') {
+                  <td class="recommendation-cell" [attr.data-label]="column.label"><span class="cell-content">{{ column.value(recommendation) }}</span><span class="recommendation-meta"><span class="owner"><span class="cell-content">{{ recommendation.owner }}</span></span><span [class]="'status ' + recommendation.status.toLowerCase().replaceAll(' ', '-')"><span class="cell-content">{{ recommendation.status }}</span></span></span></td>
+                } @else {
+                  <td [attr.data-label]="column.label" [class]="column.cellClass?.(recommendation) ?? ''"><span class="cell-content">{{ column.value(recommendation) }}</span></td>
+                }
+              }
               <td class="actions-column"><button type="button" class="row-actions" [attr.aria-expanded]="rowMenu() === recommendation.id" [attr.aria-label]="'Actions for recommendation ' + recommendation.id" (click)="rowMenu.set(rowMenu() === recommendation.id ? null : recommendation.id)"><svg lucideMoreVertical aria-hidden="true" /></button>@if (rowMenu() === recommendation.id) { <div class="row-menu floating-panel"><button type="button" (click)="applyRowStatus(recommendation.id, 'Verified')">Mark verified</button><button type="button" (click)="applyRowStatus(recommendation.id, 'Completed')">Mark completed</button><button type="button" (click)="applyRowStatus(recommendation.id, 'Cancelled Policy')">Cancel policy</button></div> }</td>
             </tr>
           } @empty {
-            <tr class="empty-row"><td [attr.colspan]="visibleColumns().size + 2"><svg lucideCircleAlert aria-hidden="true" /><strong>No matching recommendations</strong><span>Try a different search term.</span></td></tr>
+            <tr class="empty-row"><td [attr.colspan]="taskColumns().length + 2"><svg lucideCircleAlert aria-hidden="true" /><strong>No matching recommendations</strong><span>Try a different search term.</span></td></tr>
           }
         </tbody>
-      </table>
-    </app-table-shell>
-  </section>
+      </app-project-table>
+    </ng-template>
+  </app-scroll-workspace>
   } @else {
+  <header class="page-heading all-accounts-page-heading"><app-table-header title="Recommendations" searchLabel="Search recommendations" searchPlaceholder="Search client, recommendation, owner" [resultCount]="filteredRecommendations().length" resultLabel="recommendations" [filterCount]="activeFilterCount()" [columns]="columns()" [(visibleColumns)]="visibleColumns" [(columnsOpen)]="columnsOpen" (searchChanged)="query.set($event); page.set(1)" (filtersOpened)="filtersOpen.set(true); columnsOpen.set(false)" /></header>
   <section class="all-accounts-table table-card-shell" aria-labelledby="all-recommendations-heading">
     <h2 id="all-recommendations-heading" class="sr-only">All account recommendations</h2>
     @if (selected().size) {
       <app-bulk-actions ariaLabel="Bulk recommendation actions" [selectedCount]="selected().size" [actions]="bulkActions" (actionSelected)="handleBulkAction($event)" (cleared)="clearSelection()" />
     }
-    <app-table-shell class="table-wrap" [fillHeight]="true"><table>
-      <caption class="sr-only">All account recommendations</caption>
-      <thead><tr><th scope="col" class="select-column"><label><span class="sr-only">Select all visible recommendations</span><input type="checkbox" [checked]="allVisibleSelected()" [indeterminate]="selected().size > 0 && !allVisibleSelected()" (change)="toggleVisible($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck aria-hidden="true" /></span></label></th>@for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <th scope="col" [class]="'column-' + column.key"><button type="button" class="sort-button" [attr.aria-pressed]="sortPressed(column.key)" (click)="toggleSort(column.key)">{{ column.label }}<svg lucideArrowDownAZ [class.descending]="sortPressed(column.key) && sortDescending()" aria-hidden="true" /></button></th> } }<th scope="col" class="actions-column"><span class="sr-only">Actions</span></th></tr></thead>
+    <app-project-table class="table-wrap" [columns]="columns()" [visibleColumns]="visibleColumns()" [sortKey]="sortKey()" [sortDirection]="sortDescending() ? 'desc' : 'asc'" tableLabel="All account recommendations" minWidth="980px" [fillHeight]="true" (sortChange)="applyTableSort($event)">
+      <th project-table-select-header class="select-column"><label><span class="sr-only">Select all visible recommendations</span><input type="checkbox" [checked]="allVisibleSelected()" [indeterminate]="selected().size > 0 && !allVisibleSelected()" (change)="toggleVisible($any($event.target).checked)" /><span class="custom-check"><svg lucideCheck aria-hidden="true" /></span></label></th>
+      <th project-table-actions-header class="actions-column"><span class="sr-only">Actions</span></th>
       <tbody>
         @for (recommendation of pagedRecommendations(); track recommendation.id) {
-          <tr [class.selected-row]="selected().has(recommendation.id)"><td class="select-column"><label><span class="sr-only">Select recommendation {{ recommendation.id }}</span><input type="checkbox" [checked]="selected().has(recommendation.id)" (change)="toggleRecommendation(recommendation.id, $any($event.target).checked)" /><span class="custom-check"><svg lucideCheck aria-hidden="true" /></span></label></td>@for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [class]="column.cellClass?.(recommendation) ?? ''"><span class="cell-content">{{ column.value(recommendation) }}</span></td> } }<td class="actions-column"><button type="button" class="row-actions" [attr.aria-expanded]="rowMenu() === recommendation.id" [attr.aria-label]="'Actions for recommendation ' + recommendation.id" (click)="rowMenu.set(rowMenu() === recommendation.id ? null : recommendation.id)"><svg lucideMoreVertical aria-hidden="true" /></button>@if (rowMenu() === recommendation.id) { <div class="row-menu floating-panel"><button type="button" (click)="applyRowStatus(recommendation.id, 'Verified')">Mark verified</button><button type="button" (click)="applyRowStatus(recommendation.id, 'Completed')">Mark completed</button><button type="button" (click)="applyRowStatus(recommendation.id, 'Cancelled Policy')">Cancel policy</button></div> }</td></tr>
+          <tr [class.selected-row]="selected().has(recommendation.id)"><td class="select-column"><label><span class="sr-only">Select recommendation {{ recommendation.id }}</span><input type="checkbox" [checked]="selected().has(recommendation.id)" (change)="toggleRecommendation(recommendation.id, $any($event.target).checked)" /><span class="custom-check" aria-hidden="true"><svg lucideCheck /></span></label></td>@for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [attr.data-label]="column.label" [class]="column.cellClass?.(recommendation) ?? ''"><span class="cell-content">{{ column.value(recommendation) }}</span></td> } }<td class="actions-column"><button type="button" class="row-actions" [attr.aria-expanded]="rowMenu() === recommendation.id" [attr.aria-label]="'Actions for recommendation ' + recommendation.id" (click)="rowMenu.set(rowMenu() === recommendation.id ? null : recommendation.id)"><svg lucideMoreVertical aria-hidden="true" /></button>@if (rowMenu() === recommendation.id) { <div class="row-menu floating-panel"><button type="button" (click)="applyRowStatus(recommendation.id, 'Verified')">Mark verified</button><button type="button" (click)="applyRowStatus(recommendation.id, 'Completed')">Mark completed</button><button type="button" (click)="applyRowStatus(recommendation.id, 'Cancelled Policy')">Cancel policy</button></div> }</td></tr>
         } @empty { <tr><td class="empty-state" [attr.colspan]="visibleColumns().size + 2"><strong>No recommendations found</strong><span>Try changing your search or filters.</span></td></tr> }
       </tbody>
-    </table></app-table-shell>
+    </app-project-table>
     <footer class="pagination"><span>Showing {{ pageStart() }}–{{ pageEnd() }} of {{ filteredRecommendations().length }}</span><div><button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 1" aria-label="Previous page"><svg lucideChevronLeft /></button><button type="button" class="page-number active" aria-current="page">{{ page() }}</button><button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()" aria-label="Next page"><svg lucideChevronRight /></button></div></footer>
   </section>
   }
 </main>
 
 @if (filtersOpen()) {
-  <div class="scrim" (click)="filtersOpen.set(false)"></div>
-  <aside class="filter-drawer" role="dialog" aria-modal="true" aria-labelledby="recommendation-filter-title">
-    <div class="drawer-header"><div><p class="eyebrow">Refine results</p><h2 id="recommendation-filter-title">Filter recommendations</h2></div><button type="button" class="icon-button" (click)="filtersOpen.set(false)" aria-label="Close filters"><svg lucideX /></button></div>
+  <app-filter-drawer title="Filter recommendations" (dismissed)="filtersOpen.set(false)">
     <div class="filter-content">
       <fieldset><legend>Recommendation</legend><label>Urgency<select [value]="filterDraft().urgency" (change)="updateFilter('urgency', $any($event.target).value)"><option value="">Any urgency</option>@for (urgency of urgencyLevels; track urgency) { <option [value]="urgency">{{ urgency }}</option> }</select></label><label>Status<select [value]="filterDraft().status" (change)="updateFilter('status', $any($event.target).value)"><option value="">Any status</option>@for (status of recommendationStatuses; track status) { <option [value]="status">{{ status }}</option> }</select></label></fieldset>
       <fieldset><legend>Assignment</legend><label>Owner<select [value]="filterDraft().owner" (change)="updateFilter('owner', $any($event.target).value)"><option value="">Any owner</option>@for (owner of owners; track owner) { <option [value]="owner">{{ owner }}</option> }</select></label><label>Visit location<select [value]="filterDraft().location" (change)="updateFilter('location', $any($event.target).value)"><option value="">Any location</option>@for (location of locations; track location) { <option [value]="location">{{ location }}</option> }</select></label></fieldset>
       <fieldset><legend>Due date</legend><div class="segmented-control"><button type="button" [class.active]="filterDraft().dueMode === 'before'" (click)="updateFilter('dueMode', 'before')">Before</button><button type="button" [class.active]="filterDraft().dueMode === 'on'" (click)="updateFilter('dueMode', 'on')">On</button><button type="button" [class.active]="filterDraft().dueMode === 'after'" (click)="updateFilter('dueMode', 'after')">After</button><button type="button" [class.active]="filterDraft().dueMode === 'range'" (click)="updateFilter('dueMode', 'range')">Range</button></div><div class="filter-grid" [class.single-column]="filterDraft().dueMode !== 'range'"><label>{{ filterDraft().dueMode === 'range' ? 'From' : 'Due date' }}<input type="date" [value]="filterDraft().dueDate" (input)="updateFilter('dueDate', $any($event.target).value)" /></label>@if (filterDraft().dueMode === 'range') { <label>Through<input type="date" [value]="filterDraft().dueDateEnd" (input)="updateFilter('dueDateEnd', $any($event.target).value)" /></label> }</div></fieldset>
     </div>
     <div class="drawer-actions"><button type="button" class="secondary-button" (click)="resetFilters()">Reset</button><button type="button" class="primary-button" (click)="applyFilters()">Show results</button></div>
-  </aside>
+  </app-filter-drawer>
 }
 <p class="sr-only" aria-live="polite">{{ announcement() }}</p>

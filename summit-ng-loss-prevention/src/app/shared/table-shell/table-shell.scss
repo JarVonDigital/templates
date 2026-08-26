@@ -1,4 +1,0 @@
-:host { display: block; min-height: 0; overflow: hidden; border-radius: inherit; }
-:host.fill-height { display: flex; min-height: 0; flex: 1 1 auto; }
-.table-shell { min-height: 0; height: 100%; overflow: auto; border-radius: inherit; }
-:host.fill-height .table-shell { flex: 1 1 auto; }

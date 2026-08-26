@@ -1,12 +1,10 @@
 <label [for]="id()">{{ label() }} @if (required()) { <span aria-hidden="true">*</span><span class="sr-only">required</span> }</label>
 <div class="control" [class.has-icon]="kind() !== 'text'">
   @if (kind() === 'select') {
-    <select [id]="id()" [attr.aria-required]="required()" [value]="value()">
-      @for (option of options().length ? options() : [value()]; track option) { <option [value]="option">{{ option }}</option> }
-    </select>
-    <svg lucideChevronDown aria-hidden="true" />
+    <p-select [inputId]="id()" [ariaLabel]="label()" [options]="selectOptions()" [ngModel]="value()" [fluid]="true" />
+  } @else if (kind() === 'date') {
+    <p-date-picker [inputId]="id()" [ariaLabel]="label()" [dateFormat]="'mm/dd/yy'" [ngModel]="dateValue()" [showIcon]="true" [fluid]="true" [appendTo]="'body'" />
   } @else {
-    <input [id]="id()" [value]="value()" [attr.aria-required]="required()" [attr.inputmode]="kind() === 'date' ? 'numeric' : null" />
-    @if (kind() === 'date') { <svg lucideCalendarDays aria-hidden="true" /> }
+    <input pInputText [id]="id()" [value]="value()" [attr.aria-required]="required()" />
   }
 </div>

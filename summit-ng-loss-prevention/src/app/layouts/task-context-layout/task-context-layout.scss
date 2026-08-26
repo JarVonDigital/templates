@@ -10,8 +10,9 @@
 .visit-link { display: flex; min-height: 40px; align-items: center; gap: 10px; margin-top: 8px; padding: 0 10px; border-radius: 7px; color: inherit; font-size: 14px; font-weight: 600; text-decoration: none; }
 .visit-link:hover, .visit-link.active { background: #edf5fb; }
 .visit-link svg { width: 18px; height: 18px; }
-.worksheet-button.p-button { display: flex; width: 100%; min-height: 38px; align-items: center; justify-content: flex-start; gap: 9px; margin-top: 8px; padding: 0 11px; border: 0; border-radius: 7px; background: var(--summit-teal); box-shadow: none; color: #fff; font-size: 13px; font-weight: 600; }
+.worksheet-button.p-button { display: flex; width: 100%; min-height: 38px; align-items: center; justify-content: flex-start; gap: 9px; margin-top: 6px; padding: 0 11px; border: 0; border-radius: 7px; background: var(--summit-teal); box-shadow: none; color: #fff; font-size: 13px; font-weight: 600; }
 .worksheet-button svg { width: 17px; height: 17px; }
+.contacts-button.p-button { display: flex; width: 100%; min-height: 38px; align-items: center; justify-content: flex-start; gap: 9px; margin-top: 8px; padding: 0 11px; border: 0; border-radius: 7px; background: var(--summit-teal); box-shadow: none; color: #fff; font-size: 13px; font-weight: 600; }.contacts-button:hover { background: #087e6e; }.contacts-button svg { width: 17px; height: 17px; }
 .forms-navigation { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--summit-border-soft); }
 h2 { margin: 0 0 7px; padding-inline: 9px; color: #8291a6; font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
 ul { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
@@ -20,4 +21,4 @@ ul a:hover, ul a.active { background: #edf5fb; }
 ul svg { width: 18px; height: 18px; stroke-width: 1.8; }
 ul .complete a { color: var(--summit-teal); font-weight: 600; }
 @media (max-width: 1100px) { .task-context { grid-template-columns: 184px minmax(0, 1fr); } }
-@media (max-width: 760px) { .task-context { display: block; } .task-sidebar { position: static; height: auto; border-right: 0; } .forms-navigation, .worksheet-button.p-button { display: none; } }
+@media (max-width: 760px) { .task-context { display: block; } .task-sidebar { position: static; height: auto; border-right: 0; } .forms-navigation, .worksheet-button.p-button, .contacts-button.p-button { display: none; } }
