@@ -1,0 +1,65 @@
+<div class="policy-context" [class.sidebar-collapsed]="sidebarCollapsed()">
+  <div class="context-sidebar" #contextSidebar>
+    <aside class="workspace-sidebar" [class.task-sidebar]="displayedTaskDetail()" [class.policy-sidebar]="!displayedTaskDetail()" [attr.aria-label]="displayedTaskDetail() ? 'Task navigation' : 'Policy context'">
+      @if (displayedTaskDetail()) {
+      <div class="task-heading">
+        <div class="task-identifiers">
+          <span class="task-number">Task {{ displayedTaskId() }}</span>
+          <span class="policy-number">Policy {{ policy().policyNumber }}</span>
+        </div>
+      </div>
+      <a class="workspace-return" [routerLink]="['/policies', policyId(), 'tasks']"><svg lucideArrowLeft aria-hidden="true" />Back to policy tasks</a>
+      <button pButton type="button" class="contacts-button" (click)="openContacts()"><svg lucidePhone aria-hidden="true" /><span>Contacts</span></button>
+      <div class="forms-navigation">
+        <h2>Forms</h2>
+        <ul>
+          @for (form of forms; track form.slug) {
+            <li [class.complete]="form.completed">
+              <a [routerLink]="['/policies', policyId(), 'tasks', displayedTaskId(), 'forms', form.slug]" routerLinkActive="active" ariaCurrentWhenActive="page">
+                @if (form.completed) { <svg lucideCheckCircle2 aria-hidden="true" /> } @else { <svg lucideCircle aria-hidden="true" /> }
+                <span>{{ form.label }}</span>
+                @if (form.completed) { <span class="sr-only">Completed</span> }
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+      } @else {
+      <div class="policy-heading">
+        <span class="policy-kicker">Policy account</span>
+        <strong>{{ policy().name }}</strong>
+        <span>Policy {{ policy().policyNumber }}</span>
+        <span class="policy-status">{{ policy().status }}</span>
+      </div>
+      @if (displayedPolicyBackVisible()) {
+        <a class="back-link" [routerLink]="policyBackRoute()" [queryParams]="policyBackLabel() === 'Back to claims' ? claimsTableQueryParams() : null"><svg lucideArrowLeft aria-hidden="true" />{{ policyBackLabel() }}</a>
+      }
+      <p class="sidebar-note">Use the workspace tabs to review this policy’s tasks, claims, account information, and recommendations.</p>
+      }
+      <div class="sidebar-footer">
+        @if (displayedTaskDetail()) {
+          <button pButton type="button" class="worksheet-button"><svg lucidePrinter aria-hidden="true" /><span>Visit Worksheet</span></button>
+        }
+        <button pButton type="button" class="sidebar-collapse" (click)="toggleSidebar()" [attr.aria-expanded]="!sidebarCollapsed()" [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+          @if (sidebarCollapsed()) { <svg lucideChevronRight aria-hidden="true" /> } @else { <svg lucideChevronLeft aria-hidden="true" /> }
+          <span class="collapse-label">{{ sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar' }}</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="policy-workspace">
+    <app-top-navigation
+      [policyId]="policyId()"
+      [taskId]="taskId()"
+      [claimId]="claimId()"
+      [taskDetail]="taskDetail()"
+      [highSeverityRecommendationCount]="highSeverityRecommendationCount"
+      (takePhoto)="openPhotoDialog()"
+      (openAttachments)="openDocumentDialog()"
+    />
+    <router-outlet />
+  </div>
+</div>
+<app-photo-upload-dialog [open]="photoDialogOpen()" (closed)="closePhotoDialog()" />
+<app-document-upload-dialog [open]="documentDialogOpen()" (closed)="closeDocumentDialog()" />

@@ -5,7 +5,6 @@ import {
   LucideCamera,
   LucideList,
   LucidePaperclip,
-  LucideSend,
   LucideShieldPlus,
   LucideUsers,
 } from '@lucide/angular';
@@ -21,14 +20,29 @@ import {
     LucideShieldPlus,
     LucidePaperclip,
     LucideCamera,
-    LucideSend,
   ],
   templateUrl: './top-navigation.html',
   styleUrl: './top-navigation.scss',
 })
 export class TopNavigation {
-  readonly taskId = input.required<string>();
+  readonly policyId = input.required<string>();
+  readonly taskId = input<string | null>(null);
+  readonly claimId = input<string | null>(null);
+  readonly taskDetail = input(false);
   readonly highSeverityRecommendationCount = input(0);
   readonly takePhoto = output<void>();
   readonly openAttachments = output<void>();
+
+  taskTabRoute(): string[] {
+    return this.taskId()
+      ? ['/policies', this.policyId(), 'tasks', this.taskId() as string]
+      : ['/policies', this.policyId(), 'tasks'];
+  }
+
+  tabQueryParams(): Record<string, string> | null {
+    const params: Record<string, string> = {};
+    if (this.taskId()) params['taskId'] = this.taskId() as string;
+    if (this.claimId()) params['claimId'] = this.claimId() as string;
+    return Object.keys(params).length ? params : null;
+  }
 }

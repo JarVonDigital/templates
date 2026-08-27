@@ -1,0 +1,20 @@
+<main class="claim-detail-page">
+  @if (claim(); as selectedClaim) {
+    <header class="claim-detail-heading">
+      <div><p class="eyebrow">{{ policy().name }} · Policy {{ policy().policyNumber }}</p><h1>Claim {{ selectedClaim.claimId }}</h1><p>Review claim activity and financial impact for this policy.</p></div>
+      <span class="status-pill" [class.open]="selectedClaim.status === 'Open'" [class.closed]="selectedClaim.status === 'Closed'">{{ selectedClaim.status }}</span>
+    </header>
+    <section class="claim-facts" aria-label="Claim summary">
+      <div><span class="fact-icon"><svg lucideBriefcaseBusiness aria-hidden="true" /></span><span><small>Injured worker</small><strong>{{ selectedClaim.iwName }}</strong></span></div>
+      <div><span class="fact-icon"><svg lucideCalendarDays aria-hidden="true" /></span><span><small>Date of injury</small><strong>{{ selectedClaim.dateOfInjury }}</strong></span></div>
+      <div><span class="fact-icon"><svg lucideShieldCheck aria-hidden="true" /></span><span><small>Policy period</small><strong>{{ selectedClaim.policyPeriod.start }} – {{ selectedClaim.policyPeriod.end }}</strong></span></div>
+      <div><span class="fact-icon"><svg lucideCircleDollarSign aria-hidden="true" /></span><span><small>Total incurred</small><strong>{{ selectedClaim.totalIncurred | currency }}</strong></span></div>
+    </section>
+    <section class="claim-information" aria-labelledby="claim-information-title">
+      <div class="section-heading"><div><p class="eyebrow">Claim record</p><h2 id="claim-information-title">Claim information</h2></div></div>
+      <dl><div><dt>Claim number</dt><dd>{{ selectedClaim.claimKey.claimNumber }}</dd></div><div><dt>Fund</dt><dd>{{ selectedClaim.claimKey.fund }}</dd></div><div><dt>Fund year</dt><dd>{{ selectedClaim.claimKey.fundYear }}</dd></div><div><dt>Sequence</dt><dd>{{ selectedClaim.claimKey.sequence }}</dd></div><div><dt>Member</dt><dd>{{ selectedClaim.claimKey.member }}</dd></div><div><dt>Policy</dt><dd>{{ policy().policyNumber }}</dd></div></dl>
+    </section>
+  } @else {
+    <section class="not-found" aria-labelledby="claim-not-found-title"><p class="eyebrow">Claim unavailable</p><h1 id="claim-not-found-title">We couldn’t find that claim</h1><p>Use Back to claims in the sidebar to return to the claims register.</p></section>
+  }
+</main>

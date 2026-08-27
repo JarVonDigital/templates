@@ -1,5 +1,5 @@
 <main class="tasks-page">
-  <app-table-header title="Tasks" searchLabel="Search tasks" searchPlaceholder="Search client, task, policy, or consultant" [resultCount]="filteredTasks().length" resultLabel="tasks" [filterCount]="activeFilterCount()" [columns]="columns()" [(visibleColumns)]="visibleColumns" [(columnsOpen)]="columnsOpen" (searchChanged)="search($event)" (filtersOpened)="openFilters(); columnsOpen.set(false)" />
+  <app-table-header [title]="policyId() ? 'Policy tasks' : 'Tasks'" searchLabel="Search tasks" searchPlaceholder="Search client, task, policy, or consultant" [resultCount]="filteredTasks().length" resultLabel="tasks" [filterCount]="activeFilterCount()" [columns]="columns()" [(visibleColumns)]="visibleColumns" [(columnsOpen)]="columnsOpen" (searchChanged)="search($event)" (filtersOpened)="openFilters(); columnsOpen.set(false)" />
 
   <section class="task-card table-card-shell" aria-labelledby="task-table-title">
     <h2 id="task-table-title" class="sr-only">Task list</h2>
@@ -15,8 +15,14 @@
           @for (task of pageTasks(); track task.id) {
             <tr [class.selected-row]="selected().has(task.id)" [class.warning-row]="task.status === 'Pending'">
               <td class="select-column"><label><span class="sr-only">Select task {{ task.id }}</span><input type="checkbox" [checked]="selected().has(task.id)" (change)="toggleTask(task.id, $any($event.target).checked)" /><span class="custom-check"><svg lucideCheck /></span></label></td>
-          @for (column of columns(); track column.key) { @if (isColumnVisible(column.key)) { <td [attr.data-label]="column.label" [attr.data-column]="column.key" [class]="column.cellClass?.(task) ?? ''"><span class="cell-content">{{ column.value(task) }}</span></td> } }
-              <td class="actions-column"><button type="button" class="row-actions" (click)="rowMenu.set(rowMenu() === task.id ? null : task.id)" [attr.aria-expanded]="rowMenu() === task.id" [attr.aria-label]="'Actions for task ' + task.id"><svg lucideMoreVertical /></button>@if (rowMenu() === task.id) { <div class="row-menu floating-panel"><a [routerLink]="['/tasks', task.id]">Open task</a><button type="button" (click)="toggleTask(task.id, true); openBulkAction('reassign')"><svg lucideArrowLeftRight aria-hidden="true" />Reassign</button><button type="button" (click)="toggleTask(task.id, true); openBulkAction('status')"><svg lucidePencil aria-hidden="true" />Change status</button></div> }</td>
+          @for (column of columns(); track column.key) {
+            @if (isColumnVisible(column.key)) {
+              <td [attr.data-label]="column.label" [attr.data-column]="column.key" [class]="column.cellClass?.(task) ?? ''">
+                @if (column.key === 'task') { <a class="cell-content task-row-link" [routerLink]="taskRoute(task)">{{ column.value(task) }}</a> } @else { <span class="cell-content">{{ column.value(task) }}</span> }
+              </td>
+            }
+          }
+              <td class="actions-column"><button type="button" class="row-actions" (click)="rowMenu.set(rowMenu() === task.id ? null : task.id)" [attr.aria-expanded]="rowMenu() === task.id" [attr.aria-label]="'Actions for task ' + task.id"><svg lucideMoreVertical /></button>@if (rowMenu() === task.id) { <div class="row-menu floating-panel"><a [routerLink]="taskRoute(task)">Open task</a><button type="button" (click)="toggleTask(task.id, true); openBulkAction('reassign')"><svg lucideArrowLeftRight aria-hidden="true" />Reassign</button><button type="button" (click)="toggleTask(task.id, true); openBulkAction('status')"><svg lucidePencil aria-hidden="true" />Change status</button></div> }</td>
             </tr>
           } @empty { <tr><td class="empty-state" [attr.colspan]="visibleColumns().size + 2"><strong>No tasks found</strong><span>Try changing your search or filters.</span></td></tr> }
         </tbody>

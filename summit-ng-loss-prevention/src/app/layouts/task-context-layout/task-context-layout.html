@@ -1,11 +1,11 @@
 <div class="task-context">
   <aside class="task-sidebar" aria-label="Task navigation">
     <div class="task-heading">
-      <a routerLink="/tasks" aria-label="Back to task details"><svg lucideArrowLeft aria-hidden="true" /></a>
-      <span class="task-number">{{ taskId() }}</span>
-      <span class="status">Pending</span>
+      <div class="task-identifiers">
+        <span class="task-number">Task {{ taskId() }}</span>
+        <span class="policy-number">Policy {{ policy().policyNumber }}</span>
+      </div>
     </div>
-    <a class="visit-link" [routerLink]="['/tasks', taskId()]" fragment="task-details" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"><svg lucideInfo aria-hidden="true" />Visit Details</a>
     <button pButton type="button" class="contacts-button" (click)="openContacts()"><svg lucidePhone aria-hidden="true" /><span>Contacts</span></button>
     <button pButton type="button" class="worksheet-button"><svg lucidePrinter aria-hidden="true" /><span>Visit Worksheet</span></button>
     <div class="forms-navigation">
@@ -25,7 +25,7 @@
   </aside>
 
   <div class="task-workspace">
-    <app-top-navigation [taskId]="taskId()" [highSeverityRecommendationCount]="highSeverityRecommendationCount()" (takePhoto)="openPhotoDialog()" (openAttachments)="openDocumentDialog()" />
+    <app-top-navigation [policyId]="policy().id" [taskId]="taskId()" [taskDetail]="true" [highSeverityRecommendationCount]="highSeverityRecommendationCount()" (takePhoto)="openPhotoDialog()" (openAttachments)="openDocumentDialog()" />
     <router-outlet />
   </div>
 </div>

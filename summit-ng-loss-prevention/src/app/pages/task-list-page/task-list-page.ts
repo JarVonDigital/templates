@@ -1,5 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import {
   LucideArrowLeftRight,
   LucideCheck,
@@ -73,6 +75,8 @@ const SAVED_FILTERS_KEY = 'summit-loss-prevention-saved-filters';
 
 const TASKS: readonly TaskRow[] = [
   { id: '800001', due: '08/07/2026', status: 'Pending', policy: '0190-00765', client: 'Berkun-Air, Inc.', dba: '', address: '54 Main Rd, Asheville, NC 28806', state: 'NC', county: 'Buncombe', city: 'Asheville', zip: '28806', premium: 48500, lastVisit: '08/07/2025', cancelled: '04/11/2023', reason: 'Customer Unresponsive', consultant: 'Bill Stultz' },
+  { id: '800002', due: '08/14/2026', status: 'Pending', policy: '0190-00765', client: 'Berkun-Air, Inc.', dba: '', address: '54 Main Rd, Asheville, NC 28806', state: 'NC', county: 'Buncombe', city: 'Asheville', zip: '28806', premium: 48500, lastVisit: '08/07/2025', cancelled: '', reason: '', consultant: 'Robert Hollins' },
+  { id: '800003', due: '08/21/2026', status: 'Scheduled', policy: '0190-00765', client: 'Berkun-Air, Inc.', dba: '', address: '54 Main Rd, Asheville, NC 28806', state: 'NC', county: 'Buncombe', city: 'Asheville', zip: '28806', premium: 48500, lastVisit: '08/07/2025', cancelled: '', reason: '', consultant: 'Sonya Burgess' },
   { id: '800101', due: '08/12/2026', status: 'Attempt 1', policy: '0830-57161', client: 'AFG Distribution, Inc.', dba: '', address: '354 Turtle Rd, Sulphur, AL 42043', state: 'AL', county: 'Calcasieu', city: 'Sulphur', zip: '42043', premium: 72000, lastVisit: '08/07/2025', cancelled: '', reason: '', consultant: 'Steven Hidalgo' },
   { id: '802301', due: '08/16/2026', status: 'Scheduled', policy: '0999-11613', client: 'Gulf Coast Water & Ice LLC', dba: '', address: '4354 Whiskey Rd, Green Cove Springs, FL 32043', state: 'FL', county: 'Clay', city: 'Green Cove Springs', zip: '32043', premium: 91500, lastVisit: '08/07/2025', cancelled: '', reason: '', consultant: 'Jonathan Campbell' },
   { id: '804101', due: '08/27/2026', status: 'WIP', policy: '0521-24351', client: 'Nova Molecular Technologies, Inc.', dba: 'Molecular Tech', address: '454 Lake Rd, Sweetwater, FL 32043', state: 'FL', county: 'Miami-Dade', city: 'Sweetwater', zip: '32043', premium: 128000, lastVisit: '08/07/2025', cancelled: '01/21/2026', reason: 'Customer Unresponsive', consultant: 'John Saffer' },
@@ -98,6 +102,8 @@ const TASK_BULK_ACTIONS: readonly BulkActionItem[] = [
   styleUrl: './task-list-page.scss',
 })
 export class TaskListPage {
+  private readonly route = inject(ActivatedRoute);
+  readonly policyId = toSignal(this.route.paramMap.pipe(map((params) => params.get('policyId'))), { initialValue: this.route.snapshot.paramMap.get('policyId') });
   readonly bulkActions = TASK_BULK_ACTIONS;
   readonly columns = signal<readonly ColumnDefinition[]>([
     { key: 'due', label: 'Due', value: (task) => task.due, cellClass: () => 'date-cell' },
@@ -183,6 +189,7 @@ export class TaskListPage {
     const premiumMin = Number(this.premiumMinFilter());
     const premiumMax = Number(this.premiumMaxFilter());
     const matchingTasks = this.tasks().filter((task) => {
+      if (this.policyId() && task.policy !== this.policyId()) return false;
       const matchesQuery = !query || Object.values(task).some((value) => String(value).toLowerCase().includes(query));
       const taskDue = this.toTimestamp(task.due);
       const dueStart = dueDate ? new Date(`${dueDate}T00:00:00`).getTime() : 0;
@@ -216,6 +223,7 @@ export class TaskListPage {
   readonly activeFilterCount = computed(() => [this.statusFilter(), this.stateFilter(), this.countyFilter(), this.cityFilter(), this.zipFilter(), this.consultantFilter(), this.dueBefore(), this.premiumMinFilter(), this.premiumMaxFilter(), this.taskIdFilter(), this.policyFilter(), this.clientFilter(), this.lastVisitFilter(), this.cancelledFilter(), this.reasonFilter()].filter(Boolean).length);
 
   isColumnVisible(key: ColumnKey): boolean { return this.visibleColumns().has(key); }
+  taskRoute(task: TaskRow): readonly string[] { return ['/policies', task.policy, 'tasks', task.id]; }
   toggleTask(id: string, checked: boolean): void { this.selected.update((current) => { const next = new Set(current); checked ? next.add(id) : next.delete(id); return next; }); }
   togglePage(checked: boolean): void { this.selected.update((current) => { const next = new Set(current); this.pageTasks().forEach((task) => checked ? next.add(task.id) : next.delete(task.id)); return next; }); }
   clearSelection(): void { this.selected.set(new Set()); }

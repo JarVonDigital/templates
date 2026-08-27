@@ -19,6 +19,8 @@ h2 { font-size: var(--app-section-title-size); font-weight: 700; letter-spacing:
 .control-button { display: flex; min-height: var(--app-control-height); align-items: center; gap: 6px; padding: 0 10px; border: 1px solid var(--summit-border-soft); border-radius: 6px; background: #fff; color: #23344a; font-size: var(--app-table-body-size); font-weight: 600; white-space: nowrap; }.control-button svg { width: var(--app-control-icon-size); height: var(--app-control-icon-size); }.filter-count { padding: 2px 6px; border-radius: 12px; background: var(--summit-navy); color: #fff; font-size: 10px; }
 .overview-dock { display: flex; gap: 6px; padding: 8px 12px; border: 1px solid #dce5ed; border-top: 0; background: #fff; }.overview-dock span { padding: 5px 8px; border-radius: 999px; background: #eef4f8; color: #51657b; font-size: 10px; white-space: nowrap; }.overview-dock strong { color: var(--summit-ink); font-size: 13px; }
 td strong { color: var(--summit-ink); font-weight: 700; }
+.claim-link { color: var(--summit-navy); text-decoration: none; }
+.claim-link:hover, .claim-link:focus-visible { text-decoration: underline; }
 .secondary-text, .stacked-value { display: grid; gap: 3px; }
 .secondary-text, .stacked-value span { color: var(--summit-muted); font-size: 11px; }
 .status-pill { display: inline-flex; min-width: 58px; justify-content: center; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }

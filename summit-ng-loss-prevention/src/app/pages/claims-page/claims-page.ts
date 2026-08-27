@@ -1,5 +1,6 @@
 import { Component, computed, inject, model, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleCheck, LucideCircleDollarSign, LucideFilter, LucideSearch } from '@lucide/angular';
 import claimsTestData from '../../../../claims-test-data.json';
 import { ProjectTable, ProjectTableColumn, ProjectTableSortChange, ProjectTableSortDirection } from '../../shared/project-table/project-table';
@@ -18,6 +19,8 @@ interface ClaimKey {
 }
 
 interface Claim {
+  readonly claimId: string;
+  readonly policyId: string;
   readonly claimKey: ClaimKey;
   readonly policyPeriod: { readonly start: string; readonly end: string };
   readonly iwName: string;
@@ -28,7 +31,11 @@ interface Claim {
 
 type ClaimColumnKey = 'claimNumber' | 'iwName' | 'policyPeriod' | 'dateOfInjury' | 'status' | 'totalIncurred';
 
-const CLAIMS = claimsTestData as readonly Claim[];
+const CLAIMS = (claimsTestData as readonly Omit<Claim, 'claimId' | 'policyId'>[]).map((claim) => ({
+  ...claim,
+  claimId: String(claim.claimKey.claimNumber),
+  policyId: '0190-00765',
+}));
 const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const CLAIM_COLUMNS: readonly ProjectTableColumn[] = [
   { key: 'claimNumber', label: 'Claim #' },
@@ -42,13 +49,14 @@ const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-claims-page',
-  imports: [ProjectTable, FilterDrawer, ScrollWorkspace, TableHeader, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleCheck, LucideCircleDollarSign, LucideFilter, LucideSearch],
+  imports: [RouterLink, ProjectTable, FilterDrawer, ScrollWorkspace, TableHeader, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleCheck, LucideCircleDollarSign, LucideFilter, LucideSearch],
   templateUrl: './claims-page.html',
   styleUrl: './claims-page.scss',
 })
 export class ClaimsPage {
   private readonly route = inject(ActivatedRoute);
-  readonly taskId = this.route.parent?.snapshot.paramMap.get('taskId') ?? '';
+  readonly taskId = this.route.parent?.snapshot.paramMap.get('taskId') ?? this.route.snapshot.queryParamMap.get('taskId') ?? '';
+  readonly policyId = this.route.parent?.snapshot.paramMap.get('policyId') ?? '';
   readonly claims = signal(CLAIMS);
   readonly query = signal('');
   readonly columns = model<readonly ProjectTableColumn[]>(CLAIM_COLUMNS);
@@ -63,6 +71,7 @@ export class ClaimsPage {
   readonly filteredClaims = computed(() => {
     const query = this.query().trim().toLowerCase();
     return this.claims().filter((claim) => {
+      const matchesPolicy = !this.policyId || claim.policyId === this.policyId;
       const matchesStatus = this.statusFilter() === 'All' || claim.status === this.statusFilter();
       const matchesQuery = !query || [
       claim.claimKey.claimNumber,
@@ -75,7 +84,7 @@ export class ClaimsPage {
       claim.policyPeriod.end,
       claim.totalIncurred,
       ].some((value) => String(value).toLowerCase().includes(query));
-      return matchesStatus && matchesQuery;
+      return matchesPolicy && matchesStatus && matchesQuery;
     });
   });
   readonly sortedClaims = computed(() => {
@@ -105,6 +114,14 @@ export class ClaimsPage {
 
   formatCurrency(value: number): string {
     return CURRENCY_FORMATTER.format(value);
+  }
+
+  claimRoute(claim: Claim): readonly string[] {
+    return ['/policies', claim.policyId, 'claims', claim.claimId];
+  }
+
+  contextQueryParams(): Record<string, string> | null {
+    return this.taskId ? { taskId: this.taskId } : null;
   }
 
   isColumnVisible(key: string): boolean {

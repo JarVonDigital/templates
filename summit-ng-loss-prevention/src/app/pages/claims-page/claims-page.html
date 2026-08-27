@@ -1,12 +1,12 @@
 <main class="claims-page">
-  @if (taskId) {
+  @if (taskId || policyId) {
   <app-scroll-workspace [headingTemplate]="taskHeading" [fixedTemplate]="taskFixed" [compactTemplate]="taskCompact" [bodyTemplate]="taskBody" [resetKey]="query()" surfaceLabel="Claim register">
     <ng-template #taskHeading>
-      <div class="page-heading"><div><span class="eyebrow">@if (taskId) { Task {{ taskId }} } @else { Claims }</span><h1>Claims</h1><p>Review reported claims and their financial impact.</p></div><div class="overview" aria-label="Claim overview"><div><svg lucideBriefcaseBusiness aria-hidden="true" /><span><strong>{{ claims().length }}</strong>Total claims</span></div><div><svg lucideCircleCheck aria-hidden="true" /><span><strong>{{ openClaimCount() }}</strong>Open claims</span></div><div><svg lucideCircleCheck aria-hidden="true" /><span><strong>{{ closedClaimCount() }}</strong>Closed claims</span></div><div><svg lucideCircleDollarSign aria-hidden="true" /><span><strong>{{ formatCurrency(totalIncurred()) }}</strong>Total incurred</span></div></div></div>
+      <div class="page-heading"><div><span class="eyebrow">@if (policyId) { Policy {{ policyId }} } @else { Task {{ taskId }} }</span><h1>Claims</h1><p>Review reported claims and their financial impact.</p></div><div class="overview" aria-label="Claim overview"><div><svg lucideBriefcaseBusiness aria-hidden="true" /><span><strong>{{ claims().length }}</strong>Total claims</span></div><div><svg lucideCircleCheck aria-hidden="true" /><span><strong>{{ openClaimCount() }}</strong>Open claims</span></div><div><svg lucideCircleCheck aria-hidden="true" /><span><strong>{{ closedClaimCount() }}</strong>Closed claims</span></div><div><svg lucideCircleDollarSign aria-hidden="true" /><span><strong>{{ formatCurrency(totalIncurred()) }}</strong>Total incurred</span></div></div></div>
     </ng-template>
 
     <ng-template #taskFixed>
-      <div class="register-heading"><div><h2 id="claims-table-heading">Claim register</h2><p>Search and review claims associated with this task.</p></div><div class="register-controls"><label class="search-box"><span class="sr-only">Search claims</span><svg lucideSearch aria-hidden="true" /><input type="search" placeholder="Search claim, worker, policy, or status" [value]="query()" (input)="search($any($event.target).value)" /></label><button type="button" class="control-button" (click)="filtersOpen.set(true); columnsOpen.set(false)" [attr.aria-expanded]="filtersOpen()"><svg lucideFilter aria-hidden="true" />Filters @if (activeFilterCount()) { <span class="filter-count">{{ activeFilterCount() }}</span> }</button></div></div>
+      <div class="register-heading"><div><h2 id="claims-table-heading">Claim register</h2>@if (policyId) { <p>Search and review claims associated with this policy.</p> } @else { <p>Search and review claims associated with this task.</p> }</div><div class="register-controls"><label class="search-box"><span class="sr-only">Search claims</span><svg lucideSearch aria-hidden="true" /><input type="search" placeholder="Search claim, worker, policy, or status" [value]="query()" (input)="search($any($event.target).value)" /></label><button type="button" class="control-button" (click)="filtersOpen.set(true); columnsOpen.set(false)" [attr.aria-expanded]="filtersOpen()"><svg lucideFilter aria-hidden="true" />Filters @if (activeFilterCount()) { <span class="filter-count">{{ activeFilterCount() }}</span> }</button></div></div>
     </ng-template>
 
     <ng-template #taskCompact><div class="overview-dock" aria-label="Claim overview"><span><strong>{{ claims().length }}</strong> Total</span><span><strong>{{ openClaimCount() }}</strong> Open</span><span><strong>{{ closedClaimCount() }}</strong> Closed</span><span><strong>{{ formatCurrency(totalIncurred()) }}</strong> Incurred</span></div></ng-template>
@@ -19,7 +19,7 @@
         @for (claim of pagedClaims(); track claim.claimKey.claimNumber) {
               <tr>
                 @if (isColumnVisible('claimNumber')) { <td data-label="Claim #">
-                  <strong>{{ claim.claimKey.claimNumber }}</strong>
+                  <a class="claim-link" [routerLink]="claimRoute(claim)" [queryParams]="contextQueryParams()"><strong>{{ claim.claimKey.claimNumber }}</strong></a>
                   <span class="secondary-text">Fund {{ claim.claimKey.fund }} · Year {{ claim.claimKey.fundYear }}</span>
                 </td> }
                 @if (isColumnVisible('iwName')) { <td data-label="Injured worker">{{ claim.iwName }}</td> }
@@ -47,7 +47,7 @@
       <tbody>
         @for (claim of pagedClaims(); track claim.claimKey.claimNumber) {
           <tr>
-            @if (isColumnVisible('claimNumber')) { <td data-label="Claim #"><strong>{{ claim.claimKey.claimNumber }}</strong><span class="secondary-text">Fund {{ claim.claimKey.fund }} · Year {{ claim.claimKey.fundYear }}</span></td> }
+            @if (isColumnVisible('claimNumber')) { <td data-label="Claim #"><a class="claim-link" [routerLink]="claimRoute(claim)" [queryParams]="contextQueryParams()"><strong>{{ claim.claimKey.claimNumber }}</strong></a><span class="secondary-text">Fund {{ claim.claimKey.fund }} · Year {{ claim.claimKey.fundYear }}</span></td> }
             @if (isColumnVisible('iwName')) { <td data-label="Injured worker">{{ claim.iwName }}</td> }
             @if (isColumnVisible('policyPeriod')) { <td data-label="Policy period"><span class="stacked-value"><strong>{{ claim.policyPeriod.start }}</strong><span>to {{ claim.policyPeriod.end }}</span></span></td> }
             @if (isColumnVisible('dateOfInjury')) { <td data-label="Date of injury">{{ claim.dateOfInjury }}</td> }
