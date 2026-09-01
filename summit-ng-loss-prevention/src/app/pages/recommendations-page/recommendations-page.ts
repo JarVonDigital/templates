@@ -22,8 +22,8 @@ import { FilterDrawer } from '../../shared/filter-drawer/filter-drawer';
 type Urgency = 'Routine' | 'Important' | 'Critical';
 type RecommendationStatus = 'Open' | 'In progress' | 'Scheduled' | 'Awaiting verification' | 'Verified' | 'Completed' | 'Cancelled Policy';
 type BulkRecommendationStatus = Extract<RecommendationStatus, 'Verified' | 'Completed' | 'Cancelled Policy'>;
-type RecommendationSortKey = 'id' | 'title' | 'location' | 'dueDate' | 'owner' | 'status';
-type RecommendationColumnKey = 'title' | 'location' | 'dueDate' | 'owner' | 'status';
+type RecommendationSortKey = 'id' | 'title' | 'policyNo' | 'uw' | 'severity' | 'client' | 'location' | 'dateAdded' | 'dueDate' | 'dateCompleted' | 'section' | 'lpConsultant' | 'status';
+type RecommendationColumnKey = Exclude<RecommendationSortKey, 'id'>;
 
 interface Recommendation {
   readonly id: string;
@@ -38,6 +38,10 @@ interface Recommendation {
   readonly owner: string;
   readonly status: RecommendationStatus;
   readonly statusDate: string | null;
+  readonly policyNo?: string;
+  readonly uw?: string;
+  readonly client?: string;
+  readonly section?: string;
 }
 
 interface RecommendationFilters {
@@ -114,12 +118,19 @@ export class RecommendationsPage {
   readonly bulkActions = RECOMMENDATION_BULK_ACTIONS;
   readonly columns = signal<readonly RecommendationColumnDefinition[]>([
     { key: 'title', label: 'Recommendation', value: (recommendation) => `${recommendation.id} · ${recommendation.title} · ${recommendation.standard}`, cellClass: () => 'recommendation-cell' },
+    { key: 'policyNo', label: 'Policy #', value: (recommendation) => recommendation.policyNo ?? `POL-${recommendation.id.slice(4)}` },
+    { key: 'uw', label: 'UW', value: (recommendation) => recommendation.uw ?? '—' },
+    { key: 'severity', label: 'Severity', value: (recommendation) => recommendation.urgency, cellClass: (recommendation) => `severity ${recommendation.urgency.toLowerCase()}` },
+    { key: 'client', label: 'Client', value: (recommendation) => recommendation.client ?? recommendation.location.split(',')[0] },
     { key: 'location', label: 'Visit location', value: (recommendation) => `${recommendation.visit} · ${recommendation.location}`, cellClass: () => 'location-cell' },
-    { key: 'dueDate', label: 'Timeline', value: (recommendation) => `Added ${recommendation.dateAdded} · Due ${recommendation.dueDate}`, cellClass: () => 'date-cell' },
-    { key: 'owner', label: 'Owner', value: (recommendation) => recommendation.owner, cellClass: () => 'owner' },
+    { key: 'dateAdded', label: 'Added', value: (recommendation) => recommendation.dateAdded, cellClass: () => 'date-cell' },
+    { key: 'dueDate', label: 'Due', value: (recommendation) => recommendation.dueDate, cellClass: () => 'date-cell' },
+    { key: 'dateCompleted', label: 'Date Completed', value: (recommendation) => recommendation.statusDate ?? '—', cellClass: () => 'date-cell' },
+    { key: 'section', label: 'Section', value: (recommendation) => recommendation.section ?? recommendation.standard.split(' · ')[1] },
+    { key: 'lpConsultant', label: 'LP Consultant', value: (recommendation) => recommendation.owner, cellClass: () => 'owner' },
     { key: 'status', label: 'Status', value: (recommendation) => recommendation.status, cellClass: (recommendation) => `status ${recommendation.status.toLowerCase().replaceAll(' ', '-')}` },
   ]);
-  readonly taskColumns = computed(() => this.columns().filter((column) => column.key === 'title' || column.key === 'location' || column.key === 'dueDate'));
+  readonly taskColumns = computed(() => this.columns());
   readonly urgencyLevels: readonly Urgency[] = ['Critical', 'Important', 'Routine'];
   readonly selectedUrgency = signal<Urgency>('Critical');
   readonly query = signal('');
@@ -153,7 +164,8 @@ export class RecommendationsPage {
   readonly sortedRecommendations = computed(() => {
     const key = this.sortKey();
     const direction = this.sortDescending() ? -1 : 1;
-    return [...this.filteredRecommendations()].sort((left, right) => String(left[key]).localeCompare(String(right[key]), undefined, { numeric: true }) * direction);
+    const column = this.columns().find((definition) => definition.key === key);
+    return [...this.filteredRecommendations()].sort((left, right) => String(column?.value(left) ?? '').localeCompare(String(column?.value(right) ?? ''), undefined, { numeric: true }) * direction);
   });
   readonly pagedRecommendations = computed(() => this.taskId()
     ? this.sortedRecommendations()

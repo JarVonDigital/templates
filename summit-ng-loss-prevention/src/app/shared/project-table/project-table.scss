@@ -2,7 +2,7 @@
 :host.fill-height { display: flex; flex: 1 1 auto; }
 .project-table-scroll { container: project-table-surface / inline-size; width: 100%; min-width: 0; min-height: 0; height: 100%; overflow: auto; border-radius: inherit; overscroll-behavior: contain; }
 :host.fill-height .project-table-scroll { flex: 1 1 auto; }
-table { width: 100%; min-width: 100%; border-collapse: collapse; table-layout: fixed; }
+table { width: max-content; min-width: 100%; border-collapse: collapse; table-layout: auto; }
 thead { position: sticky; z-index: 3; top: 0; }
 th { height: var(--app-table-header-height); padding: 0 13px; border-bottom: 1px solid #dbe4eb; background: #f7f9fb; color: #536477; font-size: var(--app-table-meta-size); font-weight: 750; letter-spacing: .04em; text-align: left; text-transform: uppercase; white-space: nowrap; }
 th:has(.sort-button[aria-sort='ascending']), th:has(.sort-button[aria-sort='descending']) { background: var(--summit-navy); color: #fff; }
@@ -14,11 +14,6 @@ td { padding: var(--app-table-cell-padding); border-top: 1px solid #e1e7ed; colo
 tbody tr.selected-row { background: #eaf6f4; }
 [project-table-select-header] { width: 48px; }
 [project-table-actions-header] { position: relative; width: 52px; padding-inline: 5px; overflow: visible; }
-table[aria-label='All account recommendations'] th.column-title { width: 30%; }
-table[aria-label='All account recommendations'] th.column-location { width: 22%; }
-table[aria-label='All account recommendations'] th.column-dueDate { width: 16%; }
-table[aria-label='All account recommendations'] th.column-owner { width: 10%; }
-table[aria-label='All account recommendations'] th.column-status { width: 12%; }
 .select-column { width: 48px; padding-inline: 14px; }
 .select-column label { display: flex; width: 24px; height: 24px; cursor: pointer; align-items: center; }
 .select-column input[type='checkbox'] { position: absolute; width: 1px; height: 1px; opacity: 0; }

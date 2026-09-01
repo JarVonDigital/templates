@@ -39,7 +39,12 @@ th.select-column, td.select-column { padding-inline: 14px; }
 .select-column input:focus-visible + .custom-check { outline: 3px solid rgb(20 123 193 / 35%); outline-offset: 2px; }
 tbody tr:last-child td { border-bottom: 0; } tbody tr:hover { background: #fbfdfe; } tbody tr.selected-row { background: #f1f9fd; }
 .owner .cell-content { display: inline-grid; min-width: 34px; min-height: 28px; align-items: center; padding: 0 8px; border-radius: 7px; background: #eff4f7; font-size: var(--app-table-meta-size); font-weight: 600; }
+.severity .cell-content { font-weight: 700; }
+.severity.critical .cell-content { color: #a32929; }
+.severity.important .cell-content { color: #875700; }
+.severity.routine .cell-content { color: #08705f; }
 .status .cell-content { display: inline-flex; min-height: 26px; align-items: center; padding: 0 9px; border-radius: 999px; background: #edf4fa; color: #235f86; font-size: var(--app-table-meta-size); font-weight: 700; white-space: nowrap; }
+.recommendations-page td.status .cell-content { display: inline-flex !important; width: max-content; max-width: 100%; height: 26px; align-items: center !important; justify-content: center !important; justify-self: center; line-height: 1; text-align: center; }
 .status.in-progress .cell-content { background: #fff3d9; color: #875700; } .status.scheduled .cell-content { background: #eef0f4; color: #526174; } .status.awaiting-verification .cell-content { background: #e4f6f1; color: #08705f; }
 .status.verified .cell-content { background: #dff3ff; color: #075c86; } .status.completed .cell-content { background: #e1f5e8; color: #176635; } .status.cancelled-policy .cell-content { background: #f3e8ea; color: #873143; }
 .empty-row td { padding: 48px 20px; color: var(--summit-muted); text-align: center; }
@@ -81,6 +86,19 @@ tbody tr:last-child td { border-bottom: 0; } tbody tr:hover { background: #fbfdf
 .filter-count { padding: 2px 6px; border-radius: 12px; background: var(--summit-navy); color: #fff; font-size: 10px; }
 .all-accounts-table { width: 100%; min-width: 0; }
 .all-accounts-table app-project-table.table-wrap { display: flex; width: 100%; min-width: 0; }
+.recommendations-page app-project-table table { width: max-content; min-width: 100%; table-layout: auto; }
+.recommendations-page app-project-table th.column-title { min-width: 300px; }
+.recommendations-page app-project-table th.column-policyNo { min-width: 100px; }
+.recommendations-page app-project-table th.column-uw { min-width: 90px; }
+.recommendations-page app-project-table th.column-severity { min-width: 105px; }
+.recommendations-page app-project-table th.column-client { min-width: 150px; }
+.recommendations-page app-project-table th.column-location { min-width: 280px; }
+.recommendations-page app-project-table th.column-dateAdded, .recommendations-page app-project-table th.column-dueDate { width: 130px; min-width: 130px; }
+.recommendations-page app-project-table th.column-dateCompleted { min-width: 135px; }
+.recommendations-page app-project-table th.column-section { min-width: 130px; }
+.recommendations-page app-project-table th.column-lpConsultant { min-width: 145px; }
+.recommendations-page app-project-table th.column-status { min-width: 145px; }
+.recommendations-page app-project-table td .cell-content { display: block; min-width: 0; overflow-wrap: anywhere; }
 .all-accounts-table td { padding: var(--app-table-cell-padding); border-bottom: 1px solid #e1e7ed; color: #27364a; font-size: var(--app-table-body-size); line-height: 1.3; vertical-align: middle; }
 .all-accounts-table tbody tr.selected-row { background: #eaf6f4; }
 .all-accounts-table .select-column { width: 48px; padding-inline: 16px 6px; }
